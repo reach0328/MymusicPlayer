@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:id="@+id/tool_cardView"
+    android:layout_height="40dp">
+
+    <TextView
+            android:text="PlayerName"
+            android:layout_width="300dp"
+            android:layout_height="match_parent"
+            android:id="@+id/text_playerName"
+            android:textStyle="normal|bold"
+            android:layout_centerVertical="true"
+            android:gravity="center_vertical"
+            android:textSize="24sp"
+            android:textAllCaps="true"
+            android:fontFamily="sans-serif"
+            android:paddingLeft="10dp" />
+
+        <ImageView
+            android:layout_height="match_parent"
+            app:srcCompat="@android:drawable/presence_audio_online"
+            android:id="@+id/img_voiceToSearch"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true"
+            android:layout_width="30dp" />
+
+        <android.support.v7.widget.SearchView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:layout_toEndOf="@+id/img_SearchBack"
+            android:visibility="gone"
+            android:id="@+id/SearchView"
+            android:layout_marginRight="30dp" />
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="match_parent"
+            app:srcCompat="@android:drawable/ic_menu_revert"
+            android:id="@+id/img_SearchBack"
+            android:visibility="gone"
+            android:layout_marginLeft="10dp" />
+
+</RelativeLayout>
