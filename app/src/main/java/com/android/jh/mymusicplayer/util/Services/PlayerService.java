@@ -15,13 +15,12 @@ import android.media.session.MediaSessionManager;
 import android.net.Uri;
 import android.os.IBinder;
 import android.support.v7.app.NotificationCompat;
+import android.util.Log;
 
 import com.android.jh.mymusicplayer.Data.Domain.Music;
 import com.android.jh.mymusicplayer.Data.Loader.DataLoader;
 import com.android.jh.mymusicplayer.R;
 import com.android.jh.mymusicplayer.util.Control.Controller;
-import com.android.jh.mymusicplayer.util.Fragment.ListFragment;
-import com.android.jh.mymusicplayer.util.Interfaces.ControlInterface;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -29,7 +28,7 @@ import java.util.List;
 
 import static android.app.PendingIntent.getService;
 
-public class PlayerService extends Service implements ControlInterface {
+public class PlayerService extends Service {
     private static final int NOTIFICATION_ID = 1;
     private static final String TAG_SERVICES = "SERVICES";
     private static final String TAG_NOTI = "NOTIFICATION";
@@ -38,6 +37,9 @@ public class PlayerService extends Service implements ControlInterface {
     public static final String ACTION_NEXT = "action_next";
     public static final String ACTION_PREVIOUS = "action_previous";
     public static final String ACTION_STOP = "action_stop";
+    public static final String ACTION_PAGE = "action_page";
+
+    public static boolean isPlaying = false;
 
     // 1. 미디어플레이어 사용 API 세팅
     public static MediaPlayer mMediaPlayer = null;
@@ -51,45 +53,33 @@ public class PlayerService extends Service implements ControlInterface {
     private Controller controller;
 
     @Override
+    public void onCreate() {
+        initMediaSessions();
+    }
+
+    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if(intent != null) {
-            if(intent.getExtras() != null) {
-                listType = intent.getExtras().getString(ListFragment.ARG_LIST_TYPE);
-                position = intent.getExtras().getInt(ListFragment.ARG_POSITION);
-                if(mMediaPlayer == null) {
-                    initMedia();
-                    initMediaSessions();
-                }
-            }
-        }
         handleAction(intent);
         return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
     public void onDestroy() {
-        controller.deleteObservers(this);
         super.onDestroy();
     }
 
     private void initMedia() {
         if (datas.size() < 1) {
             controller = Controller.getInstance();
-            controller.addObservers(this);
-            switch (listType) {
-                case ListFragment.TYPE_SONG:
-                    datas = DataLoader.getMusics(getBaseContext());
-                    break;
-                case ListFragment.TYPE_ARTIST:
-                    break;
-            }
+            datas = DataLoader.getMusics(getBaseContext());
         }
         // 음원 uri
         Uri musicUri = datas.get(position).music_uri;
-        try {
+        Log.i("isplaying","======================="+isPlaying);
+        if(isPlaying) {
+            mMediaPlayer.stop();
             mMediaPlayer.release();
-        } catch (Exception e) {
-
+            isPlaying = false;
         }
         // 플레이어에 음원 세팅
         mMediaPlayer = MediaPlayer.create(this, musicUri);
@@ -97,9 +87,10 @@ public class PlayerService extends Service implements ControlInterface {
         mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                nextPlayer();
+                //TODO 완료시 호출
             }
         });
+        mMediaPlayer.start();
     }
 
     // 2. 명령어 실행
@@ -107,8 +98,9 @@ public class PlayerService extends Service implements ControlInterface {
         if( intent == null || intent.getAction() == null )
             return;
         String action = intent.getAction();
-        if( action.equalsIgnoreCase( ACTION_PLAY ) ) {
-            // 음원처리
+        if(action.equalsIgnoreCase(ACTION_PAGE)) {
+            initMedia();
+        } else if( action.equalsIgnoreCase( ACTION_PLAY ) ) {
             playerStart();
         } else if( action.equalsIgnoreCase( ACTION_PAUSE ) ) {
             playerPause();
@@ -158,6 +150,7 @@ public class PlayerService extends Service implements ControlInterface {
 
         // 퍼즈일 경우만 노티 삭제 가능
         if(ACTION_PAUSE.equals(action_flag)) {
+            //panding intent를 통하여 stop
             builder.setDeleteIntent(stopIntent);
             builder.setOngoing(false);
         }
@@ -168,12 +161,12 @@ public class PlayerService extends Service implements ControlInterface {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+
         if(bitmap!=null)
             builder.setLargeIcon(bitmap);
         builder.addAction(generateAction(android.R.drawable.ic_media_previous, "Prev", ACTION_PREVIOUS));
         builder.addAction(action);
         builder.addAction(generateAction(android.R.drawable.ic_media_next, "Next", ACTION_NEXT));
-
         style.setShowActionsInCompactView(0,1,2);
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -209,22 +202,26 @@ public class PlayerService extends Service implements ControlInterface {
             @Override
             public void onPlay() {
                 super.onPlay();
+                playPlayer();
                 controller.play();
             }
 
             @Override
             public void onPause() {
                 super.onPause();
+                pausePlayer();
                 controller.pause();
             }
 
             @Override
             public void onSkipToNext() {
+                nextPlayer();
                 controller.next();
             }
 
             @Override
             public void onSkipToPrevious() {
+                prePlayer();
                 controller.pre();
             }
 
@@ -240,31 +237,28 @@ public class PlayerService extends Service implements ControlInterface {
         });
     }
 
-    @Override
     public void playPlayer() {
+        isPlaying = true;
         buildNotification( generateAction( android.R.drawable.ic_media_pause, "Pause", ACTION_PAUSE ),ACTION_PAUSE );
         mMediaPlayer.start();
     }
 
-    @Override
     public void pausePlayer() {
         buildNotification(generateAction(android.R.drawable.ic_media_play, "Play", ACTION_PLAY),ACTION_PLAY);
         mMediaPlayer.pause();
     }
 
-    @Override
     public void nextPlayer() {
-        if(position+1<datas.size()) {
+        if(position+1 <datas.size())
             position = position + 1;
-            initMedia();
-        }
+        initMedia();
+        buildNotification( generateAction( android.R.drawable.ic_media_pause, "Pause", ACTION_PAUSE ),ACTION_PAUSE );
     }
 
-    @Override
     public void prePlayer() {
-        if(position-1>0) {
-            position = position - 1;
-            initMedia();
-        }
+        if(position -1 > 0)
+            position = position -1;
+        buildNotification( generateAction( android.R.drawable.ic_media_pause, "Pause", ACTION_PAUSE ),ACTION_PAUSE );
+        initMedia();
     }
 }

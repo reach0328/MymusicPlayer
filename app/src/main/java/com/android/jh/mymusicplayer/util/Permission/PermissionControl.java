@@ -15,7 +15,7 @@ import android.os.Build;
 public class PermissionControl {
     // 1.2 요청할 권한 목록 작성
     public static final String PERMISSION_ARRAY[] = {
-            Manifest.permission.READ_EXTERNAL_STORAGE
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
 
     //권한 체크

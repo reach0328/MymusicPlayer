@@ -43,7 +43,6 @@
 
         <TextView
             android:text="Title"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/text_bottom_title"
             android:paddingLeft="10dp"
@@ -51,17 +50,18 @@
             android:textStyle="normal|bold"
             android:textSize="18sp"
             android:layout_alignTop="@+id/btn_bottom_pre"
-            android:layout_toEndOf="@+id/img_bottom" />
+            android:layout_toEndOf="@+id/img_bottom"
+            android:layout_width="180dp" />
 
         <TextView
             android:text="artist"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/text_bottom_artist"
             android:textSize="12sp"
             android:paddingLeft="10dp"
             android:layout_below="@+id/text_bottom_title"
-            android:layout_toEndOf="@+id/img_bottom" />
+            android:layout_toEndOf="@+id/img_bottom"
+            android:layout_width="140dp" />
 
         <ImageView
             android:layout_width="wrap_content"

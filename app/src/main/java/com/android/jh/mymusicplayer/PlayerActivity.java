@@ -5,6 +5,7 @@ import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -21,8 +22,11 @@ import com.android.jh.mymusicplayer.util.Services.PlayerService;
 import java.util.List;
 
 import static com.android.jh.mymusicplayer.util.Control.Controller.ACTION;
+import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_NEXT;
+import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_PAGE;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_PAUSE;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_PLAY;
+import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_PREVIOUS;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_STOP;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.listType;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.position;
@@ -42,6 +46,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.i("PLAYACTIVITY_CREATE","==========================");
         setContentView(R.layout.activity_player);
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
         controller = Controller.getInstance();
@@ -55,6 +60,11 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         super.onPause();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
     private void returnPage() {
         // 특정 페이지 호출
         Intent intent = getIntent();
@@ -62,24 +72,14 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
             Bundle bundle = intent.getExtras();
             listType = bundle.getString( ListFragment.ARG_LIST_TYPE );
             position = bundle.getInt( ListFragment.ARG_POSITION );
-            //실제 페이지 값 게산 처리
-            //페이지 이동
-            viewPager.setCurrentItem(position);
-            // 첫페이지 일 경우 만 init 호출
-            // 이유 : 첫페이지가 아닐경우 위에 setCurrentItem 에 의해서 ViewPagerdml onPageSelected가 호출된다.
-            if(position == 0) {
-                init();
-            } else {
-                viewPager.setCurrentItem(position);
-            }
+            requestService(ACTION_PAGE);
+            init();
         }
     }
 
-    private void play() {
+    private void requestService(String action) {
         service = new Intent(this, PlayerService.class);
-        service.setAction(PlayerService.ACTION_PLAY);
-        service.putExtra(ListFragment.ARG_POSITION, position);
-        service.putExtra(ListFragment.ARG_LIST_TYPE,listType);
+        service.setAction(action);
         startService(service);
     }
 
@@ -143,8 +143,14 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         }
         @Override
         public void onPageSelected(int position) {
-            PlayerService.position = position;
-            init();
+            if(PlayerService.position>position) {
+                requestService(ACTION_PREVIOUS);
+                controller.pre();
+            }
+            else if(PlayerService.position<position) {
+                requestService(ACTION_NEXT);
+                controller.next();
+            }
         }
         @Override
         public void onPageScrollStateChanged(int state) {
@@ -158,6 +164,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void init() {
+        viewPager.setCurrentItem(position);
         if(datas.get(position).getTitle().length() > 8) {
             String title = String.format("%10S", datas.get(position).getTitle()+"..");
             player_text_title.setText(title);
@@ -170,7 +177,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         // 컨트롤러 세팅
         controllerInit();
         playActioncheck();
-        play();
+        requestService(ACTION_PLAY);
     }
 
 
@@ -181,9 +188,11 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
                 backToPage();
                 break;
             case R.id.btn_player_next :
+                requestService(ACTION_NEXT);
                 controller.next();
                 break;
             case R.id.btn_player_pre :
+                requestService(ACTION_PREVIOUS);
                 controller.pre();
                 break;
             case R.id.btn_player_play :
@@ -199,10 +208,12 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
     private void playActioncheck() {
         switch (ACTION) {
             case ACTION_STOP :
-            case ACTION_PAUSE :
+            case ACTION_PLAY :
+                requestService(ACTION_PLAY);
                 controller.play();
                 break;
-            case ACTION_PLAY :
+            case ACTION_PAUSE:
+                requestService(ACTION_PAUSE);
                 controller.pause();
                 break;
         }
@@ -264,25 +275,23 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public void playPlayer() {
-        ACTION = ACTION_PLAY;
+        ACTION = ACTION_PAUSE;
         img_player_play.setImageResource(android.R.drawable.ic_media_pause);
     }
 
     @Override
     public void pausePlayer() {
-        ACTION = ACTION_PAUSE;
+        ACTION = ACTION_PLAY;
         img_player_play.setImageResource(android.R.drawable.ic_media_play);
     }
 
     @Override
     public void prePlayer() {
-        if(position-1 > 0)
-            viewPager.setCurrentItem(position-1);
+        init();
     }
 
     @Override
     public void nextPlayer() {
-        if(position+1 < datas.size())
-            viewPager.setCurrentItem(position+1);
+        init();
     }
 }

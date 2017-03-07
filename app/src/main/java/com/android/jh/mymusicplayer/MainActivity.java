@@ -1,5 +1,6 @@
 package com.android.jh.mymusicplayer;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -13,7 +14,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -26,11 +26,14 @@ import com.android.jh.mymusicplayer.util.Control.Controller;
 import com.android.jh.mymusicplayer.util.Fragment.ListFragment;
 import com.android.jh.mymusicplayer.util.Interfaces.ControlInterface;
 import com.android.jh.mymusicplayer.util.Permission.PermissionControl;
+import com.android.jh.mymusicplayer.util.Services.PlayerService;
 import com.bumptech.glide.Glide;
 
 import static com.android.jh.mymusicplayer.util.Control.Controller.ACTION;
+import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_NEXT;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_PAUSE;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_PLAY;
+import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_PREVIOUS;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_STOP;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.datas;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.mMediaPlayer;
@@ -68,7 +71,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         controller = Controller.getInstance();
         controller.addObservers(this);
-        Log.i(TAG,"========================="+controller.observers.size());
         layoutInit();
         checkPermission();
     }
@@ -103,6 +105,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    private void requestService(String action) {
+        Intent service = new Intent(this, PlayerService.class);
+        service.setAction(action);
+        startService(service);
+    }
+
     private void init() {
         img_bottom_pre.setOnClickListener(this);
         img_bottom_next.setOnClickListener(this);
@@ -134,9 +142,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 playerActionCheck();
                 break;
             case R.id.btn_bottom_next :
+                requestService(ACTION_NEXT);
                 controller.next();
                 break;
             case R.id.btn_bottom_pre :
+                requestService(ACTION_PREVIOUS);
                 controller.pre();
                 break;
             case R.id.list_playControl_cardview :
@@ -147,10 +157,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void playerActionCheck() {
         switch (ACTION) {
             case ACTION_STOP :
-            case ACTION_PAUSE :
+            case ACTION_PLAY :
+                requestService(ACTION_PLAY);
                 controller.play();
                 break;
-            case ACTION_PLAY :
+            case ACTION_PAUSE :
+                requestService(ACTION_PAUSE);
                 controller.pause();
                 break;
         }
@@ -217,14 +229,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(list_viewPager));
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        bottomPlayerInit();
-    }
-
     public void bottomPlayerInit() {
-        if(mMediaPlayer == null && position == -1)
+        if(mMediaPlayer == null )
             list_cardView.setVisibility(View.GONE);
         else {
             list_cardView.setVisibility(View.VISIBLE);
@@ -251,13 +257,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void playPlayer() {
-        ACTION = ACTION_PLAY;
+        ACTION = ACTION_PAUSE;
         img_bottom_play.setImageResource(android.R.drawable.ic_media_pause);
     }
 
     @Override
     public void pausePlayer() {
-        ACTION = ACTION_PAUSE;
+        ACTION = ACTION_PLAY;
         img_bottom_play.setImageResource(android.R.drawable.ic_media_play);
     }
 
