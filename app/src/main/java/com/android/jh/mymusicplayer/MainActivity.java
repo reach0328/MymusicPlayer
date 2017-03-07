@@ -13,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -49,11 +50,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     CardView list_cardView;
     Toolbar list_toolbar;
     Controller controller;
-    
+
     @Override
     protected void onDestroy() {
         controller.deleteObservers(this);
         super.onDestroy();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
 
     @Override
@@ -62,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         controller = Controller.getInstance();
         controller.addObservers(this);
+        Log.i(TAG,"========================="+controller.observers.size());
         layoutInit();
         checkPermission();
     }
@@ -139,8 +146,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void playerActionCheck() {
         switch (ACTION) {
-            case ACTION_PAUSE :
             case ACTION_STOP :
+            case ACTION_PAUSE :
                 controller.play();
                 break;
             case ACTION_PLAY :
@@ -208,6 +215,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         list_viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         // 탭 리스너 :  탭이 변경 되었을대 페이지를 바꿔주는 리스너
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(list_viewPager));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        bottomPlayerInit();
     }
 
     public void bottomPlayerInit() {

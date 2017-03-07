@@ -15,7 +15,6 @@ import android.media.session.MediaSessionManager;
 import android.net.Uri;
 import android.os.IBinder;
 import android.support.v7.app.NotificationCompat;
-import android.util.Log;
 
 import com.android.jh.mymusicplayer.Data.Domain.Music;
 import com.android.jh.mymusicplayer.Data.Loader.DataLoader;
@@ -63,8 +62,6 @@ public class PlayerService extends Service implements ControlInterface {
                 }
             }
         }
-        controller = Controller.getInstance();
-        controller.addObservers(this);
         handleAction(intent);
         return super.onStartCommand(intent, flags, startId);
     }
@@ -76,19 +73,24 @@ public class PlayerService extends Service implements ControlInterface {
     }
 
     private void initMedia() {
-        if(datas.size() < 1){
-        switch(listType){
-            case ListFragment.TYPE_SONG :
-                datas = DataLoader.getMusics(getBaseContext());
-                break;
-            case ListFragment.TYPE_ARTIST :
+        if (datas.size() < 1) {
+            controller = Controller.getInstance();
+            controller.addObservers(this);
+            switch (listType) {
+                case ListFragment.TYPE_SONG:
+                    datas = DataLoader.getMusics(getBaseContext());
+                    break;
+                case ListFragment.TYPE_ARTIST:
+                    break;
+            }
         }
-    }
         // 음원 uri
         Uri musicUri = datas.get(position).music_uri;
-        if(mMediaPlayer !=  null)
+        try {
             mMediaPlayer.release();
+        } catch (Exception e) {
 
+        }
         // 플레이어에 음원 세팅
         mMediaPlayer = MediaPlayer.create(this, musicUri);
         mMediaPlayer.setLooping(false); // 반복여부
@@ -104,7 +106,6 @@ public class PlayerService extends Service implements ControlInterface {
     private void handleAction( Intent intent ) {
         if( intent == null || intent.getAction() == null )
             return;
-
         String action = intent.getAction();
         if( action.equalsIgnoreCase( ACTION_PLAY ) ) {
             // 음원처리
@@ -176,6 +177,7 @@ public class PlayerService extends Service implements ControlInterface {
         style.setShowActionsInCompactView(0,1,2);
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
         // 노티바를 화면에 보여준다
         notificationManager.notify(NOTIFICATION_ID , builder.build());
     }
@@ -218,14 +220,11 @@ public class PlayerService extends Service implements ControlInterface {
 
             @Override
             public void onSkipToNext() {
-                super.onSkipToNext();
-                Log.i(TAG_NOTI,"========================"+position);
                 controller.next();
             }
 
             @Override
             public void onSkipToPrevious() {
-                super.onSkipToPrevious();
                 controller.pre();
             }
 
@@ -255,16 +254,17 @@ public class PlayerService extends Service implements ControlInterface {
 
     @Override
     public void nextPlayer() {
-        if(position+1<datas.size())
-            position = position +1;
-        initMedia();
+        if(position+1<datas.size()) {
+            position = position + 1;
+            initMedia();
+        }
     }
 
     @Override
     public void prePlayer() {
-        if(position-1>0)
-            position = position -1;
-        Log.i(TAG_SERVICES,"========================"+position);
-        initMedia();
+        if(position-1>0) {
+            position = position - 1;
+            initMedia();
+        }
     }
 }

@@ -13,9 +13,9 @@ import android.widget.TextView;
 import com.android.jh.mymusicplayer.Data.Domain.Music;
 import com.android.jh.mymusicplayer.Data.Loader.DataLoader;
 import com.android.jh.mymusicplayer.util.Adapter.PlayerAdapter;
+import com.android.jh.mymusicplayer.util.Control.Controller;
 import com.android.jh.mymusicplayer.util.Fragment.ListFragment;
 import com.android.jh.mymusicplayer.util.Interfaces.ControlInterface;
-import com.android.jh.mymusicplayer.util.Control.Controller;
 import com.android.jh.mymusicplayer.util.Services.PlayerService;
 
 import java.util.List;
@@ -30,7 +30,6 @@ import static com.android.jh.mymusicplayer.util.Services.PlayerService.position;
 public class PlayerActivity extends AppCompatActivity implements View.OnClickListener, ControlInterface {
 
     private static final String TAG = "PLAYACTIVITY" ;
-
     TextView player_text_title, player_text_artist;
     ViewPager viewPager;
     SeekBar volum_seekBar;
@@ -38,7 +37,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
     List<Music> datas;
     PlayerAdapter playerAdapter;
     Controller controller;
-    private int player_position = -1;
+    Intent service;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +48,11 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         controller.addObservers(this);
         layoutInit();
         returnPage();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
 
     private void returnPage() {
@@ -70,12 +74,13 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
             }
         }
     }
+
     private void play() {
-        Intent intent = new Intent(this, PlayerService.class);
-        intent.setAction(PlayerService.ACTION_PLAY);
-        intent.putExtra(ListFragment.ARG_POSITION, position);
-        intent.putExtra(ListFragment.ARG_LIST_TYPE,listType);
-        startService(intent);
+        service = new Intent(this, PlayerService.class);
+        service.setAction(PlayerService.ACTION_PLAY);
+        service.putExtra(ListFragment.ARG_POSITION, position);
+        service.putExtra(ListFragment.ARG_LIST_TYPE,listType);
+        startService(service);
     }
 
     private void controllerInit() {
@@ -123,15 +128,6 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
 //        }
 //    }
 
-    private void prev() {
-        if(position > 0)
-            viewPager.setCurrentItem(position-1);
-    }
-
-    private void next() {
-        if(position < datas.size())
-            viewPager.setCurrentItem(position+1);
-    }
 
     @Override
     protected void onDestroy() {
@@ -162,19 +158,18 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void init() {
-        player_position = position;
-        if(datas.get(player_position).getTitle().length() > 8) {
-            String title = String.format("%10S", datas.get(player_position).getTitle()+"..");
+        if(datas.get(position).getTitle().length() > 8) {
+            String title = String.format("%10S", datas.get(position).getTitle()+"..");
             player_text_title.setText(title);
         } else {
-            player_text_title.setText(datas.get(player_position).getTitle());
+            player_text_title.setText(datas.get(position).getTitle());
         }
-        player_text_artist.setText(datas.get(player_position).getArtist());
-
+        player_text_artist.setText(datas.get(position).getArtist());
         // 뷰페이저로 이동할 경우 플레이어 세팅된 값을 해제한 후 로직을 실행한다
         img_player_play.setImageResource(android.R.drawable.ic_media_play);
         // 컨트롤러 세팅
         controllerInit();
+        playActioncheck();
         play();
     }
 
@@ -186,10 +181,10 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
                 backToPage();
                 break;
             case R.id.btn_player_next :
-                next();
+                controller.next();
                 break;
             case R.id.btn_player_pre :
-                prev();
+                controller.pre();
                 break;
             case R.id.btn_player_play :
                 playActioncheck();
@@ -203,8 +198,8 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
 
     private void playActioncheck() {
         switch (ACTION) {
-            case ACTION_PAUSE :
             case ACTION_STOP :
+            case ACTION_PAUSE :
                 controller.play();
                 break;
             case ACTION_PLAY :
@@ -281,11 +276,13 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public void prePlayer() {
-
+        if(position-1 > 0)
+            viewPager.setCurrentItem(position-1);
     }
 
     @Override
     public void nextPlayer() {
-
+        if(position+1 < datas.size())
+            viewPager.setCurrentItem(position+1);
     }
 }
