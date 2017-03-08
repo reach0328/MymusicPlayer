@@ -75,11 +75,9 @@ public class PlayerService extends Service {
         }
         // 음원 uri
         Uri musicUri = datas.get(position).music_uri;
-        Log.i("isplaying","======================="+isPlaying);
-        if(isPlaying) {
+        if(mMediaPlayer!=null) {
             mMediaPlayer.stop();
             mMediaPlayer.release();
-            isPlaying = false;
         }
         // 플레이어에 음원 세팅
         mMediaPlayer = MediaPlayer.create(this, musicUri);
@@ -107,6 +105,7 @@ public class PlayerService extends Service {
         } else if( action.equalsIgnoreCase( ACTION_PREVIOUS ) ) {
             playerPre();
         } else if( action.equalsIgnoreCase( ACTION_NEXT ) ) {
+            Log.i(TAG_SERVICES,"=================================");
             playerNext();
         } else if(action.equalsIgnoreCase( ACTION_STOP )) {
             playerStop();
@@ -237,8 +236,8 @@ public class PlayerService extends Service {
         });
     }
 
+
     public void playPlayer() {
-        isPlaying = true;
         buildNotification( generateAction( android.R.drawable.ic_media_pause, "Pause", ACTION_PAUSE ),ACTION_PAUSE );
         mMediaPlayer.start();
     }

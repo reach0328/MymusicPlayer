@@ -5,6 +5,7 @@ import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -165,11 +166,11 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
 
     private void init() {
         viewPager.setCurrentItem(position);
+        player_text_title.setText(datas.get(position).getTitle());
         if(datas.get(position).getTitle().length() > 8) {
-            String title = String.format("%10S", datas.get(position).getTitle()+"..");
-            player_text_title.setText(title);
-        } else {
-            player_text_title.setText(datas.get(position).getTitle());
+            player_text_title.setSingleLine(true);
+            player_text_title.setEllipsize(TextUtils.TruncateAt.MARQUEE);
+            player_text_title.setSelected(true);
         }
         player_text_artist.setText(datas.get(position).getArtist());
         // 뷰페이저로 이동할 경우 플레이어 세팅된 값을 해제한 후 로직을 실행한다

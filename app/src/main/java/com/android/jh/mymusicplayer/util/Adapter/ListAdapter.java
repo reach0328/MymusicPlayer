@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,13 +53,12 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.Holder>{
 
     @Override
     public void onBindViewHolder(Holder holder, int position) {
-
         Common common = (Common) datas.get(position);
+        holder.txtTitle.setText(common.getTitle());
         if(common.getTitle().length() > 8) {
-            String title = String.format("%8S", common.getTitle()+"..");
-            holder.txtTitle.setText(title);
-        } else {
-            holder.txtTitle.setText(common.getTitle());
+            holder.txtTitle.setSingleLine();
+            holder.txtTitle.setEllipsize(TextUtils.TruncateAt.MARQUEE);
+            holder.txtTitle.setSelected(true);
         }
         holder.txtArtist.setText(common.getArtist());
         holder.position = position;

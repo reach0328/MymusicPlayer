@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -240,6 +241,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     .placeholder(android.R.drawable.ic_menu_close_clear_cancel)
                     .into(img_botton);
             text_bottom_title.setText(music.getTitle());
+            if(music.getTitle().length()>8) {
+                text_bottom_title.setSingleLine(true);
+                text_bottom_title.setEllipsize(TextUtils.TruncateAt.MARQUEE);
+                text_bottom_title.setSelected(true);
+            }
             text_bottom_Time.setText(music.getDurationText());
             text_bottom_artist.setText(music.getArtist());
         }
@@ -257,6 +263,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void playPlayer() {
+        bottomPlayerInit();
         ACTION = ACTION_PAUSE;
         img_bottom_play.setImageResource(android.R.drawable.ic_media_pause);
     }
