@@ -6,4 +6,5 @@ public interface ControlInterface {
     void pausePlayer();
     void prePlayer();
     void nextPlayer();
+    void startService();
 }

@@ -16,6 +16,7 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -38,12 +39,14 @@ import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_NE
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_PAUSE;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_PLAY;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_PREVIOUS;
+import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_STARTSERVICE;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_STOP;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.getDatas;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.mMediaPlayer;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.position;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,ControlInterface {
+
 
     private static final String TAG = "MAINACTIVITY" ;
     // 권한 요청 코드
@@ -58,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Toolbar list_toolbar;
     Controller controller;
     FloatingActionButton fab;
+
     @Override
     protected void onDestroy() {
         controller.deleteObservers(this);
@@ -73,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        requestService(ACTION_PAUSE);
+        requestService(ACTION_STARTSERVICE);
         controller = Controller.getInstance();
         controller.addObservers(this);
         layoutInit();
@@ -87,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (PermissionControl.checkPermssion(this, REQ_PERMISSION)) {
                 init();
             }
+
         } else {
             init();
         }
@@ -140,13 +145,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View view) {
-        Intent intent;
+        Intent intent= new Intent(this,PlayerActivity.class);
         switch (view.getId()) {
             case R.id.fabButton :
                 Random random = new Random();
                 position = random.nextInt(getDatas().size());
-                intent = new Intent(this,PlayerActivity.class);
-                intent.putExtra(ListFragment.ARG_POSITION, position);
                 startActivity(intent);
                 break;
             case R.id.btn_bottom_play :
@@ -162,13 +165,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.list_playControl_cardview :
                 intent = new Intent(this,PlayerActivity.class);
-                intent.putExtra(ListFragment.ARG_POSITION, position);
+
                 startActivity(intent);
                 break;
         }
     }
 
     private void playerActionCheck() {
+        Log.i("ACTION","========================="+ACTION);
         switch (ACTION) {
             case ACTION_STOP :
             case ACTION_PLAY :
@@ -296,5 +300,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void nextPlayer() {
         bottomPlayerInit();
+    }
+
+    @Override
+    public void startService() {
+        img_bottom_play.setImageResource(android.R.drawable.ic_media_pause);
     }
 }

@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -13,7 +14,6 @@ import android.widget.TextView;
 
 import com.android.jh.mymusicplayer.util.Adapter.PlayerAdapter;
 import com.android.jh.mymusicplayer.util.Control.Controller;
-import com.android.jh.mymusicplayer.util.Fragment.ListFragment;
 import com.android.jh.mymusicplayer.util.Interfaces.ControlInterface;
 import com.android.jh.mymusicplayer.util.Services.PlayerService;
 
@@ -24,7 +24,6 @@ import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_PA
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_PLAY;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_PREVIOUS;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_STOP;
-import static com.android.jh.mymusicplayer.util.Services.PlayerService.listType;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.position;
 
 public class PlayerActivity extends AppCompatActivity implements View.OnClickListener, ControlInterface {
@@ -63,8 +62,6 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         Intent intent = getIntent();
         if(intent != null){
             Bundle bundle = intent.getExtras();
-            listType = bundle.getString( ListFragment.ARG_LIST_TYPE );
-            position = bundle.getInt( ListFragment.ARG_POSITION );
             requestService(ACTION_PAGE);
             init();
         }
@@ -199,6 +196,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void playActioncheck() {
+        Log.i("ACTION","========================="+ACTION);
         switch (ACTION) {
             case ACTION_STOP :
             case ACTION_PLAY :
@@ -284,5 +282,10 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void nextPlayer() {
         init();
+    }
+
+    @Override
+    public void startService() {
+        img_player_play.setImageResource(android.R.drawable.ic_media_pause);
     }
 }

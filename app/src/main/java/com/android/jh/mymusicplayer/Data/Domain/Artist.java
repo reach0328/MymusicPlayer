@@ -18,6 +18,14 @@ public class Artist extends Common{
     public int number_of_albums;
     public List<Music> musics;
 
+    public List<Music> getMusics() {
+        return musics;
+    }
+
+    public void setMusics(List<Music> musics) {
+        this.musics = musics;
+    }
+
     @Override
     public String getTitle() {
         return artist;

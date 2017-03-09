@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 
+import com.android.jh.mymusicplayer.Data.Domain.Album;
 import com.android.jh.mymusicplayer.Data.Domain.Artist;
 import com.android.jh.mymusicplayer.Data.Domain.Music;
 
@@ -16,9 +17,8 @@ public class DataLoader {
 
     // datas 를 두개의 activity에서 공유하기 위해 static 형태로 변경
     private static List<Music> musicDatas = new ArrayList<>();
-
     private static List<Artist> artistDatas = new ArrayList<>();
-
+    private static List<Album> albumDatas = new ArrayList<>();
 
     // static 변수인 datas 를 체크해서 널이면 load 를 실행
     public static List<Music> getMusics(Context context){
@@ -33,6 +33,17 @@ public class DataLoader {
             loadArtist(context);
         }
         return artistDatas;
+    }
+
+    public static List<Album> getAlbumDatas(Context context) {
+        if(albumDatas == null || albumDatas.size() == 0){
+            loadAlbum(context);
+        }
+        return albumDatas;
+    }
+
+    private static void loadAlbum(Context context) {
+
     }
 
     // load 함수는 get 함수를 통해서만 접근한다.
@@ -119,10 +130,15 @@ public class DataLoader {
                 artist.artist_key = getString(cursor, PROJ[2]);
                 artist.number_of_albums = getInt(cursor, PROJ[3]);
                 artist.number_of_tracks = getInt(cursor, PROJ[4]);
-
                 artist.album_id = getAlbumIdByArtistId(artist.id);
                 artist.album_image_uri = getAlbumUriByArtistId(artist.id);
-
+                List<Music> musics = new ArrayList<>();
+                for(int i=0; i<musicDatas.size(); i++) {
+                    Music music = musicDatas.get(i);
+                    if(music.artist_key.equals(artist.artist_key))
+                        musics.add(music);
+                }
+                artist.setMusics(musics);
                 artistDatas.add(artist);
             }
             // 처리 후 커서를 닫아준다
@@ -149,12 +165,6 @@ public class DataLoader {
     }
 
 
-    private static String getGenre(){
-        // MediaStore.Audio.Genres.getContentUriForAudioId();
-        return "";
-    }
-
-
     private static String getString(Cursor cursor, String columnName){
         int idx = cursor.getColumnIndex(columnName);
         return cursor.getString(idx);
@@ -175,4 +185,4 @@ public class DataLoader {
     private static Uri getAlbumImageSimple(int album_id){
         return Uri.parse("content://media/external/audio/albumart/" + album_id);
     }
-}
+    }

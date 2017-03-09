@@ -54,4 +54,9 @@ public class Controller {
             observer.nextPlayer();
         }
     }
+    public void startService() {
+        for(ControlInterface observer : observers) {
+            observer.startService();
+        }
+    }
 }

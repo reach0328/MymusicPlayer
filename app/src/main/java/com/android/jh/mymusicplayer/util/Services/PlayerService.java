@@ -17,6 +17,7 @@ import android.support.v7.app.NotificationCompat;
 
 import com.android.jh.mymusicplayer.Data.Domain.Music;
 import com.android.jh.mymusicplayer.Data.Loader.DataLoader;
+import com.android.jh.mymusicplayer.MainActivity;
 import com.android.jh.mymusicplayer.R;
 import com.android.jh.mymusicplayer.util.Control.Controller;
 import com.android.jh.mymusicplayer.util.UtilSharedPreferences;
@@ -25,6 +26,7 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.app.PendingIntent.getActivity;
 import static android.app.PendingIntent.getService;
 
 public class PlayerService extends Service {
@@ -38,14 +40,14 @@ public class PlayerService extends Service {
     public static final String ACTION_PREVIOUS = "action_previous";
     public static final String ACTION_STOP = "action_stop";
     public static final String ACTION_PAGE = "action_page";
+    public static final String ACTION_STARTSERVICE = "action_startservice";
 
     // 1. 미디어플레이어 사용 API 세팅
     public static MediaPlayer mMediaPlayer = null;
     private MediaSession mSession;
     private MediaController mController;
-    public static String listType = "";
     public static int position = -1;
-
+    public static boolean isON = false;
     private static List<Music> datas = new ArrayList<>();
     public static Controller controller = null;
 
@@ -79,16 +81,17 @@ public class PlayerService extends Service {
         }
         // 음원 uri
         Uri musicUri = datas.get(position).music_uri;
-        if(mMediaPlayer != null) {
+        // error code -38 스타트를 안해주면 나온다!!!!
+        if(mMediaPlayer !=null)
             mMediaPlayer.reset();
-        }
+
         // 플레이어에 음원 세팅
         mMediaPlayer = MediaPlayer.create(this, musicUri);
         mMediaPlayer.setLooping(false); // 반복여부
         mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                //TODO 완료시 호출
+                //playerNext(); => //TODO player가 듀레이션이 끝날때 끝나도록
             }
         });
     }
@@ -100,6 +103,7 @@ public class PlayerService extends Service {
         String action = intent.getAction();
         if(action.equalsIgnoreCase(ACTION_PAGE)) {
             initMedia();
+            mMediaPlayer.start();
         } else if( action.equalsIgnoreCase( ACTION_PLAY ) ) {
             playerStart();
         } else if( action.equalsIgnoreCase( ACTION_PAUSE ) ) {
@@ -110,6 +114,14 @@ public class PlayerService extends Service {
             playerNext();
         } else if(action.equalsIgnoreCase( ACTION_STOP )) {
             playerStop();
+        } else if(action.equalsIgnoreCase(ACTION_STARTSERVICE)){
+            if(!isON) {
+                playerPause();
+                isON = true;
+            } else {
+                buildNotification( generateAction( android.R.drawable.ic_media_pause, "Pause", ACTION_PAUSE ),ACTION_PAUSE );
+                controller.startService();
+            }
         }
     }
 
@@ -140,7 +152,8 @@ public class PlayerService extends Service {
         Intent intentStop = new Intent( getApplicationContext(), PlayerService.class );
         intentStop.setAction( ACTION_STOP );
         PendingIntent stopIntent = getService(getApplicationContext(), 1, intentStop, 0);
-
+        Intent clickToActivity = new Intent(getApplicationContext(), MainActivity.class);
+        PendingIntent clickIntent = getActivity(getApplicationContext(), 2,clickToActivity, 0);
         // 노티바 생성
         NotificationCompat.Builder builder = new NotificationCompat.Builder( this );
 
@@ -168,6 +181,8 @@ public class PlayerService extends Service {
         builder.addAction(generateAction(android.R.drawable.ic_media_previous, "Prev", ACTION_PREVIOUS));
         builder.addAction(action);
         builder.addAction(generateAction(android.R.drawable.ic_media_next, "Next", ACTION_NEXT));
+        builder.setContentIntent(clickIntent);
+
         style.setShowActionsInCompactView(0,1,2);
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -261,8 +276,8 @@ public class PlayerService extends Service {
     public void prePlayer() {
         if(position -1 > 0)
             position = position -1;
-        buildNotification( generateAction( android.R.drawable.ic_media_pause, "Pause", ACTION_PAUSE ),ACTION_PAUSE );
         initMedia();
         mMediaPlayer.start();
+        buildNotification( generateAction( android.R.drawable.ic_media_pause, "Pause", ACTION_PAUSE ),ACTION_PAUSE );
     }
 }
