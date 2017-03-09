@@ -36,7 +36,6 @@ import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_PA
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_PLAY;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_PREVIOUS;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_STOP;
-import static com.android.jh.mymusicplayer.util.Services.PlayerService.datas;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.mMediaPlayer;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.position;
 
@@ -72,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         controller = Controller.getInstance();
         controller.addObservers(this);
+        requestService(ACTION_PAUSE);
         layoutInit();
         checkPermission();
     }
@@ -235,7 +235,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             list_cardView.setVisibility(View.GONE);
         else {
             list_cardView.setVisibility(View.VISIBLE);
-            Music music= datas.get(position);
+            Music music = PlayerService.getDatas().get(position);
             Glide.with(this)
                     .load(music.getImageUri())
                     .placeholder(android.R.drawable.ic_menu_close_clear_cancel)

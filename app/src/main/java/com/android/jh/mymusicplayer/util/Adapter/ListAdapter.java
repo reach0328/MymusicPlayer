@@ -37,7 +37,6 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.Holder>{
                     item_layout_id = R.layout.title_list;
                     break;
                 case ListFragment.TYPE_ALBUM:
-                case ListFragment.TYPE_GENRE:
                 case ListFragment.TYPE_ARTIST:
                     item_layout_id = R.layout.aritist_list;
                     break;

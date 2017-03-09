@@ -15,12 +15,12 @@ import android.media.session.MediaSessionManager;
 import android.net.Uri;
 import android.os.IBinder;
 import android.support.v7.app.NotificationCompat;
-import android.util.Log;
 
 import com.android.jh.mymusicplayer.Data.Domain.Music;
 import com.android.jh.mymusicplayer.Data.Loader.DataLoader;
 import com.android.jh.mymusicplayer.R;
 import com.android.jh.mymusicplayer.util.Control.Controller;
+import com.android.jh.mymusicplayer.util.UtilSharedPreferences;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -49,11 +49,17 @@ public class PlayerService extends Service {
     public static String listType = "";
     public static int position = -1;
 
-    public static List<Music> datas = new ArrayList<>();
+    private static List<Music> datas = new ArrayList<>();
     private Controller controller;
+
+    public static List<Music> getDatas() {
+        return datas;
+    }
 
     @Override
     public void onCreate() {
+        position = UtilSharedPreferences.loadInt(this,"position",0);
+        initMedia();
         initMediaSessions();
     }
 
@@ -65,6 +71,7 @@ public class PlayerService extends Service {
 
     @Override
     public void onDestroy() {
+        UtilSharedPreferences.saveInt(this,"position",position);
         super.onDestroy();
     }
 
@@ -88,7 +95,6 @@ public class PlayerService extends Service {
                 //TODO 완료시 호출
             }
         });
-        mMediaPlayer.start();
     }
 
     // 2. 명령어 실행
@@ -105,7 +111,6 @@ public class PlayerService extends Service {
         } else if( action.equalsIgnoreCase( ACTION_PREVIOUS ) ) {
             playerPre();
         } else if( action.equalsIgnoreCase( ACTION_NEXT ) ) {
-            Log.i(TAG_SERVICES,"=================================");
             playerNext();
         } else if(action.equalsIgnoreCase( ACTION_STOP )) {
             playerStop();

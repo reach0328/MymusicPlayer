@@ -6,21 +6,16 @@ import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.android.jh.mymusicplayer.Data.Domain.Music;
-import com.android.jh.mymusicplayer.Data.Loader.DataLoader;
 import com.android.jh.mymusicplayer.util.Adapter.PlayerAdapter;
 import com.android.jh.mymusicplayer.util.Control.Controller;
 import com.android.jh.mymusicplayer.util.Fragment.ListFragment;
 import com.android.jh.mymusicplayer.util.Interfaces.ControlInterface;
 import com.android.jh.mymusicplayer.util.Services.PlayerService;
-
-import java.util.List;
 
 import static com.android.jh.mymusicplayer.util.Control.Controller.ACTION;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_NEXT;
@@ -39,7 +34,6 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
     ViewPager viewPager;
     SeekBar volum_seekBar;
     ImageView img_player_back, img_player_play, img_player_pre,img_player_next, img_player_whole, img_player_suffle;
-    List<Music> datas;
     PlayerAdapter playerAdapter;
     Controller controller;
     Intent service;
@@ -47,7 +41,6 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i("PLAYACTIVITY_CREATE","==========================");
         setContentView(R.layout.activity_player);
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
         controller = Controller.getInstance();
@@ -166,13 +159,13 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
 
     private void init() {
         viewPager.setCurrentItem(position);
-        player_text_title.setText(datas.get(position).getTitle());
-        if(datas.get(position).getTitle().length() > 8) {
+        player_text_title.setText(PlayerService.getDatas().get(position).getTitle());
+        if(PlayerService.getDatas().get(position).getTitle().length() > 8) {
             player_text_title.setSingleLine(true);
             player_text_title.setEllipsize(TextUtils.TruncateAt.MARQUEE);
             player_text_title.setSelected(true);
         }
-        player_text_artist.setText(datas.get(position).getArtist());
+        player_text_artist.setText(PlayerService.getDatas().get(position).getArtist());
         // 뷰페이저로 이동할 경우 플레이어 세팅된 값을 해제한 후 로직을 실행한다
         img_player_play.setImageResource(android.R.drawable.ic_media_play);
         // 컨트롤러 세팅
@@ -235,10 +228,8 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         img_player_whole = (ImageView) findViewById(R.id.btn_player_whole);
         img_player_suffle = (ImageView) findViewById(R.id.btn_player_suffle);
         img_player_pre = (ImageView) findViewById(R.id.btn_player_pre);
-        // 0. 데이터 가져오기
-        datas = DataLoader.getMusics(this);
         // 2. 뷰페이저용 아답터 생성
-        playerAdapter = new PlayerAdapter(datas ,this);
+        playerAdapter = new PlayerAdapter(PlayerService.getDatas() ,this);
         // 3. 뷰페이저 아답터 연결
         viewPager.setAdapter( playerAdapter );
         // 4. 뷰 페이저 리스너 연결
