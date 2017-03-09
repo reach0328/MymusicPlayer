@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
@@ -30,12 +31,15 @@ import com.android.jh.mymusicplayer.util.Permission.PermissionControl;
 import com.android.jh.mymusicplayer.util.Services.PlayerService;
 import com.bumptech.glide.Glide;
 
+import java.util.Random;
+
 import static com.android.jh.mymusicplayer.util.Control.Controller.ACTION;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_NEXT;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_PAUSE;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_PLAY;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_PREVIOUS;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_STOP;
+import static com.android.jh.mymusicplayer.util.Services.PlayerService.getDatas;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.mMediaPlayer;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.position;
 
@@ -53,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     CardView list_cardView;
     Toolbar list_toolbar;
     Controller controller;
-
+    FloatingActionButton fab;
     @Override
     protected void onDestroy() {
         controller.deleteObservers(this);
@@ -100,8 +104,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             } else {
                 Toast.makeText(this, "권한을 사용하지 않으시면 프로그램을 실행시킬수 없습니다", Toast.LENGTH_SHORT).show();
                 finish();
-                // 선택 1.종료, 2. 권한체크 다시물어보기
-                //PermissionControl.checkPermssion(this,REQ_PERMISSION);
             }
         }
     }
@@ -121,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         searchView.setOnQueryTextListener(queryTextListener);
         text_playLIstName.setText("All");
         text_playLIstName.setOnClickListener(this);
+        fab.setOnClickListener(this);
     }
 
     SearchView.OnQueryTextListener queryTextListener =new SearchView.OnQueryTextListener() {
@@ -137,8 +140,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View view) {
+        Intent intent;
         switch (view.getId()) {
-            case R.id.img_SearchBack :
+            case R.id.fabButton :
+                Random random = new Random();
+                position = random.nextInt(getDatas().size());
+                intent = new Intent(this,PlayerActivity.class);
+                intent.putExtra(ListFragment.ARG_POSITION, position);
+                startActivity(intent);
                 break;
             case R.id.btn_bottom_play :
                 playerActionCheck();
@@ -152,6 +161,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 controller.pre();
                 break;
             case R.id.list_playControl_cardview :
+                intent = new Intent(this,PlayerActivity.class);
+                intent.putExtra(ListFragment.ARG_POSITION, position);
+                startActivity(intent);
                 break;
         }
     }
@@ -213,6 +225,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         list_cardView = (CardView) findViewById(R.id.list_playControl_cardview);
         img_SearchBack = (ImageView) findViewById(R.id.img_SearchBack);
         searchView = (SearchView) findViewById(R.id.SearchView);
+        fab = (FloatingActionButton) findViewById(R.id.fabButton);
         toolbarInit();
         naviInit();
         tabBarInit();

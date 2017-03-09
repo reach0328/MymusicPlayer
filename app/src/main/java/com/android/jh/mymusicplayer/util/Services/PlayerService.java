@@ -11,7 +11,6 @@ import android.media.MediaPlayer;
 import android.media.Rating;
 import android.media.session.MediaController;
 import android.media.session.MediaSession;
-import android.media.session.MediaSessionManager;
 import android.net.Uri;
 import android.os.IBinder;
 import android.support.v7.app.NotificationCompat;
@@ -30,6 +29,7 @@ import static android.app.PendingIntent.getService;
 
 public class PlayerService extends Service {
     private static final int NOTIFICATION_ID = 1;
+
     private static final String TAG_SERVICES = "SERVICES";
     private static final String TAG_NOTI = "NOTIFICATION";
     public static final String ACTION_PLAY = "action_play";
@@ -39,11 +39,8 @@ public class PlayerService extends Service {
     public static final String ACTION_STOP = "action_stop";
     public static final String ACTION_PAGE = "action_page";
 
-    public static boolean isPlaying = false;
-
     // 1. 미디어플레이어 사용 API 세팅
     public static MediaPlayer mMediaPlayer = null;
-    private MediaSessionManager mManager;
     private MediaSession mSession;
     private MediaController mController;
     public static String listType = "";
@@ -52,19 +49,15 @@ public class PlayerService extends Service {
     private static List<Music> datas = new ArrayList<>();
     public static Controller controller = null;
 
-    private static boolean isCreated = false;
     public static List<Music> getDatas() {
         return datas;
     }
 
     @Override
     public void onCreate() {
-        if(isCreated)
-            return;
         position = UtilSharedPreferences.loadInt(this,"position",0);
         initMedia();
         initMediaSessions();
-        isCreated = true;
     }
 
     @Override
@@ -75,9 +68,8 @@ public class PlayerService extends Service {
 
     @Override
     public void onDestroy() {
-        mMediaPlayer.release();
         UtilSharedPreferences.saveInt(this,"position",position);
-//        super.onDestroy();
+        super.onDestroy();
     }
 
     private void initMedia() {
@@ -142,6 +134,7 @@ public class PlayerService extends Service {
 
     private void buildNotification(NotificationCompat.Action action , String action_flag ) {
         Music music = datas.get(position);
+
         NotificationCompat.MediaStyle style = new NotificationCompat.MediaStyle();
         // Stop intent
         Intent intentStop = new Intent( getApplicationContext(), PlayerService.class );
@@ -152,16 +145,16 @@ public class PlayerService extends Service {
         NotificationCompat.Builder builder = new NotificationCompat.Builder( this );
 
         builder.setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle( music.getTitle() )
-                .setContentText( music.getArtist() )
-                .setStyle(style);
+                .setContentTitle(music.getTitle())
+                .setContentText(music.getArtist())
+//                .setAutoCancel(true)
+                 .setStyle(style)
+                 .setDeleteIntent(stopIntent);
 
         // 퍼즈일 경우만 노티 삭제 가능
-        if(ACTION_PAUSE.equals(action_flag)) {
+//        if(ACTION_PAUSE.equals(action_flag)) {
             //panding intent를 통하여 stop
-            builder.setDeleteIntent(stopIntent);
-            builder.setOngoing(false);
-        }
+//        }
         builder.setSmallIcon(R.drawable.ic_launcher);
         Bitmap bitmap=null;
         try {
@@ -199,8 +192,7 @@ public class PlayerService extends Service {
         }
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel( NOTIFICATION_ID );
-        Intent intent = new Intent( getApplicationContext(), PlayerService.class );
-        stopService( intent );
+        stopSelf();
     }
 
     private void initMediaSessions() {
@@ -244,6 +236,7 @@ public class PlayerService extends Service {
                 super.onSetRating(rating);
             }
         });
+
     }
 
 

@@ -106,6 +106,8 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.Holder>{
                         }
                     });
                     break;
+                case ListFragment.TYPE_ARTIST:
+                    break;
                 default :
                     // nothing
                     break;

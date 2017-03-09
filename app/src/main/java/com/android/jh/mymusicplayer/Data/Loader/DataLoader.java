@@ -23,7 +23,7 @@ public class DataLoader {
     // static 변수인 datas 를 체크해서 널이면 load 를 실행
     public static List<Music> getMusics(Context context){
         if(musicDatas == null || musicDatas.size() == 0){
-            loadSound(context);
+            loadMusic(context);
         }
         return musicDatas;
     }
@@ -36,7 +36,7 @@ public class DataLoader {
     }
 
     // load 함수는 get 함수를 통해서만 접근한다.
-    private static void loadSound(Context context) {
+    private static void loadMusic(Context context) {
         // 1. 데이터 컨테츠 URI 정의
         final Uri URI = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
 

@@ -36,7 +36,6 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
     ImageView img_player_back, img_player_play, img_player_pre,img_player_next, img_player_whole, img_player_suffle;
     PlayerAdapter playerAdapter;
     Controller controller;
-    Intent service;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +71,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void requestService(String action) {
-        service = new Intent(this, PlayerService.class);
+        Intent service = new Intent(this, PlayerService.class);
         service.setAction(action);
         startService(service);
     }
