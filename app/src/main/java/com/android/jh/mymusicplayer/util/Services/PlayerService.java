@@ -50,17 +50,21 @@ public class PlayerService extends Service {
     public static int position = -1;
 
     private static List<Music> datas = new ArrayList<>();
-    private Controller controller;
+    public static Controller controller = null;
 
+    private static boolean isCreated = false;
     public static List<Music> getDatas() {
         return datas;
     }
 
     @Override
     public void onCreate() {
+        if(isCreated)
+            return;
         position = UtilSharedPreferences.loadInt(this,"position",0);
         initMedia();
         initMediaSessions();
+        isCreated = true;
     }
 
     @Override
@@ -71,19 +75,19 @@ public class PlayerService extends Service {
 
     @Override
     public void onDestroy() {
+        mMediaPlayer.release();
         UtilSharedPreferences.saveInt(this,"position",position);
 //        super.onDestroy();
     }
 
     private void initMedia() {
         if (datas.size() < 1) {
-            controller = Controller.getInstance();
+            Controller.getInstance();
             datas = DataLoader.getMusics(getBaseContext());
         }
         // 음원 uri
         Uri musicUri = datas.get(position).music_uri;
         if(mMediaPlayer != null) {
-            mMediaPlayer.stop();
             mMediaPlayer.reset();
         }
         // 플레이어에 음원 세팅

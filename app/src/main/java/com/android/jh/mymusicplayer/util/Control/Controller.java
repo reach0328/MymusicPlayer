@@ -6,8 +6,10 @@ import com.android.jh.mymusicplayer.util.Services.PlayerService;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.android.jh.mymusicplayer.util.Services.PlayerService.controller;
+
 public class Controller {
-    private static Controller controller = null;
+//    private static Controller controller = null;
 
     public static String ACTION = PlayerService.ACTION_STOP;
 
