@@ -1,7 +1,5 @@
 package com.android.jh.mymusicplayer.util.Control;
 
-import android.util.Log;
-
 import com.android.jh.mymusicplayer.util.Interfaces.ControlInterface;
 import com.android.jh.mymusicplayer.util.Services.PlayerService;
 
@@ -35,7 +33,6 @@ public class Controller {
     }
 
     public void play() {
-        Log.i("CONTROLL","==============================="+observers.size());
         for(ControlInterface observer : observers) {
             observer.playPlayer();
         }

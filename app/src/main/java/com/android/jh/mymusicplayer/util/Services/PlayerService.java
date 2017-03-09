@@ -72,7 +72,7 @@ public class PlayerService extends Service {
     @Override
     public void onDestroy() {
         UtilSharedPreferences.saveInt(this,"position",position);
-        super.onDestroy();
+//        super.onDestroy();
     }
 
     private void initMedia() {
@@ -82,9 +82,9 @@ public class PlayerService extends Service {
         }
         // 음원 uri
         Uri musicUri = datas.get(position).music_uri;
-        if(mMediaPlayer!=null) {
+        if(mMediaPlayer != null) {
             mMediaPlayer.stop();
-            mMediaPlayer.release();
+            mMediaPlayer.reset();
         }
         // 플레이어에 음원 세팅
         mMediaPlayer = MediaPlayer.create(this, musicUri);
@@ -214,7 +214,8 @@ public class PlayerService extends Service {
             public void onPause() {
                 super.onPause();
                 pausePlayer();
-                controller.pause();
+                if(controller!=null)
+                    controller.pause();
             }
 
             @Override
@@ -256,6 +257,7 @@ public class PlayerService extends Service {
         if(position+1 <datas.size())
             position = position + 1;
         initMedia();
+        mMediaPlayer.start();
         buildNotification( generateAction( android.R.drawable.ic_media_pause, "Pause", ACTION_PAUSE ),ACTION_PAUSE );
     }
 
@@ -264,5 +266,6 @@ public class PlayerService extends Service {
             position = position -1;
         buildNotification( generateAction( android.R.drawable.ic_media_pause, "Pause", ACTION_PAUSE ),ACTION_PAUSE );
         initMedia();
+        mMediaPlayer.start();
     }
 }

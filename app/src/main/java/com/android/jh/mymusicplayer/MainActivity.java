@@ -69,9 +69,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        requestService(ACTION_PAUSE);
         controller = Controller.getInstance();
         controller.addObservers(this);
-        requestService(ACTION_PAUSE);
         layoutInit();
         checkPermission();
     }
@@ -109,6 +109,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void requestService(String action) {
         Intent service = new Intent(this, PlayerService.class);
         service.setAction(action);
+        service.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startService(service);
     }
 
