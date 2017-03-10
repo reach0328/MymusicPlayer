@@ -196,7 +196,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         toggle.syncState();
     }
 
-    private void naviInit() {
+
+    //TODO header부분을 줄여서 표현하면서 스크롤링 까지 되도록 그리고 나만의 리스트 만들기
+    private void neviInit() {
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -231,7 +233,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         searchView = (SearchView) findViewById(R.id.SearchView);
         fab = (FloatingActionButton) findViewById(R.id.fabButton);
         toolbarInit();
-        naviInit();
+        neviInit();
         tabBarInit();
         bottomPlayerInit();
         // fragment pager 작성

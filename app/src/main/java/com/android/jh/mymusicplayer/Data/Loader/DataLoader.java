@@ -42,6 +42,7 @@ public class DataLoader {
         return albumDatas;
     }
 
+    //TODO 앨범별 로드하여 확장형 리스트로 작성!!
     private static void loadAlbum(Context context) {
 
     }

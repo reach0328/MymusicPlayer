@@ -91,7 +91,7 @@ public class PlayerService extends Service {
         mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                //playerNext(); => //TODO player가 듀레이션이 끝날때 끝나도록
+                playerNext();
             }
         });
     }

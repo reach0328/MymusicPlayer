@@ -94,7 +94,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
             }
         });
     }
-
+//TODO 원형으로 된 seekbar 구현 및 seekbar 컨트롤시 타임 호출
 //    class TimerThread extends Thread {
 //        // sub thread 를 생성해서 mediaplayer 의 현재 포지션 값으로 seekbar 를 변경해준다. 매 1초마다
 //        // sub thread 에서 동작할 로직 정의
