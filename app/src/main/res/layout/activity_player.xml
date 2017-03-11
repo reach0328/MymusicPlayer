@@ -18,54 +18,54 @@
     <android.support.v7.widget.Toolbar
         android:id="@+id/playertoolbar"
         android:layout_width="match_parent"
-        android:layout_alignParentTop="true"
+        android:layout_height="60dp"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="10dp"
-        android:layout_height="60dp">
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="5dp">
 
-<android.support.v7.widget.CardView
-    android:layout_width="match_parent"
-    android:layout_height="50dp"
-    android:id="@+id/player_CardView"
-    app:cardCornerRadius="10dp"
-    android:layout_marginRight="13dp">
+        <android.support.v7.widget.CardView
+            android:id="@+id/player_CardView"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginRight="13dp"
+            app:cardCornerRadius="10dp">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentStart="true">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentStart="true">
 
-        <TextView
-            android:id="@+id/player_text_artist"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:text="artist"
-            android:textAlignment="center" />
+                <TextView
+                    android:id="@+id/player_text_artist"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_centerHorizontal="true"
+                    android:text="artist"
+                    android:textAlignment="center" />
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            app:srcCompat="@android:drawable/ic_menu_revert"
-            android:id="@+id/btn_player_back"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginLeft="5dp" />
+                <ImageView
+                    android:id="@+id/btn_player_back"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginLeft="5dp"
+                    app:srcCompat="@android:drawable/ic_menu_revert" />
 
-        <TextView
-        android:id="@+id/player_text_title"
-        android:layout_height="wrap_content"
-        android:text="title"
-            android:textStyle="normal|bold"
-        android:textSize="22sp"
-            android:textAlignment="center"
-            android:layout_width="260dp"
-            android:layout_above="@+id/player_text_artist"
-            android:layout_centerHorizontal="true" />
-    </RelativeLayout>
-</android.support.v7.widget.CardView>
+                <TextView
+                    android:id="@+id/player_text_title"
+                    android:layout_width="260dp"
+                    android:layout_height="wrap_content"
+                    android:layout_above="@+id/player_text_artist"
+                    android:layout_centerHorizontal="true"
+                    android:text="title"
+                    android:textAlignment="center"
+                    android:textSize="22sp"
+                    android:textStyle="normal|bold" />
+            </RelativeLayout>
+        </android.support.v7.widget.CardView>
     </android.support.v7.widget.Toolbar>
 
 
@@ -75,97 +75,7 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/playertoolbar"
         android:layout_alignParentStart="true"
-        android:layout_above="@+id/player_bottomCardview"></android.support.v4.view.ViewPager>
-
-    <android.support.v7.widget.CardView
-        android:id="@+id/player_bottomCardview"
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginLeft="3dp"
-        android:layout_marginRight="3dp"
-        android:layout_marginBottom="3dp"
-        app:cardCornerRadius="10dp">
-        <RelativeLayout
-            android:id="@+id/playercontroller"
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentStart="true">
-
-            <SeekBar
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/seekbar_volum"
-                android:layout_alignParentBottom="true"
-                android:layout_marginBottom="16dp"
-                android:layout_toEndOf="@+id/imageView8" />
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:srcCompat="@android:drawable/ic_media_play"
-                android:id="@+id/btn_player_play"
-                android:layout_above="@+id/seekbar_volum"
-                android:layout_centerHorizontal="true"
-                android:layout_marginBottom="15dp" />
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:srcCompat="@android:drawable/ic_media_previous"
-                android:layout_alignTop="@+id/btn_player_play"
-                android:layout_toStartOf="@+id/btn_player_play"
-                android:layout_marginEnd="13dp"
-                android:id="@+id/btn_player_pre" />
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:srcCompat="@android:drawable/ic_media_next"
-                android:layout_alignBottom="@+id/btn_player_play"
-                android:layout_toEndOf="@+id/btn_player_play"
-                android:layout_marginStart="13dp"
-                android:id="@+id/btn_player_next" />
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:srcCompat="@drawable/volume_24"
-                android:id="@+id/imageView8"
-                android:layout_alignTop="@+id/seekbar_volum"
-                android:layout_alignParentStart="true"
-                android:layout_marginLeft="5dp" />
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:srcCompat="@android:drawable/ic_menu_rotate"
-                android:id="@+id/btn_player_whole"
-                android:layout_alignTop="@+id/btn_player_next"
-                android:layout_alignParentEnd="true"
-                android:layout_marginEnd="29dp" />
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:srcCompat="@android:drawable/ic_menu_help"
-                android:layout_alignBottom="@+id/btn_player_pre"
-                android:layout_toEndOf="@+id/imageView8"
-                android:id="@+id/btn_player_suffle" />
-
-        </RelativeLayout>
-    </android.support.v7.widget.CardView>
-
-    <ImageView
-        app:srcCompat="@drawable/record_bar"
-        android:id="@+id/imageView2"
-        android:layout_marginEnd="24dp"
-        android:layout_width="120dp"
-        android:layout_height="280dp"
-        android:layout_marginTop="54dp"
-        android:layout_below="@+id/playertoolbar"
-        android:layout_alignEnd="@+id/player_bottomCardview" />
+        android:layout_above="@+id/player_bottomCardview"/>
+    <include layout="@layout/player_control"/>
 
 </RelativeLayout>

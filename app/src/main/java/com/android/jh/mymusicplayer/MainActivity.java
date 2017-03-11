@@ -213,6 +213,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tabLayout.addTab(tabLayout.newTab().setText("Title"));
         tabLayout.addTab(tabLayout.newTab().setText("Artist"));
         tabLayout.addTab(tabLayout.newTab().setText("Album"));
+        tabLayout.addTab(tabLayout.newTab().setText("MyList"));
     }
 
     private void layoutInit() {
@@ -239,6 +240,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         FragmentAdapter adapter = new FragmentAdapter(getSupportFragmentManager());
         adapter.addFragment(ListFragment.newInstance(1, ListFragment.TYPE_SONG));
         adapter.addFragment(ListFragment.newInstance(2, ListFragment.TYPE_ARTIST));
+        adapter.addFragment(ListFragment.newInstance(1, ListFragment.TYPE_ALBUM));
         adapter.addFragment(ListFragment.newInstance(1, ListFragment.TYPE_ALBUM));
         list_viewPager.setAdapter(adapter);
         // 페이저 리스너 :  페이저가 변경 되었을대 탭을 바꿔주는 리스너
@@ -282,13 +284,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void playPlayer() {
         bottomPlayerInit();
         ACTION = ACTION_PAUSE;
-        img_bottom_play.setImageResource(android.R.drawable.ic_media_pause);
+        img_bottom_play.setImageResource(R.drawable.pause);
     }
 
     @Override
     public void pausePlayer() {
         ACTION = ACTION_PLAY;
-        img_bottom_play.setImageResource(android.R.drawable.ic_media_play);
+        img_bottom_play.setImageResource(R.drawable.play);
     }
 
     @Override
@@ -303,6 +305,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void startService() {
-        img_bottom_play.setImageResource(android.R.drawable.ic_media_pause);
+        img_bottom_play.setImageResource(R.drawable.pause);
     }
 }

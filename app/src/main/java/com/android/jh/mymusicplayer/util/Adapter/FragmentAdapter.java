@@ -10,7 +10,7 @@ import java.util.List;
 
 public class FragmentAdapter extends FragmentStatePagerAdapter {
 
-    private final int TAB_COUNT = 3;
+    private final int TAB_COUNT = 4;
 
     List<Fragment> fragmentList = new ArrayList<>();
 
@@ -29,6 +29,7 @@ public class FragmentAdapter extends FragmentStatePagerAdapter {
             case 0 : fragment = fragmentList.get(0); break;
             case 1 : fragment = fragmentList.get(1); break;
             case 2 : fragment = fragmentList.get(2); break;
+            case 3 : fragment = fragmentList.get(3); break;
         }
         return fragment;
     }

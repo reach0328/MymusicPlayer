@@ -15,6 +15,7 @@ import com.android.jh.mymusicplayer.util.Adapter.PlayerAdapter;
 import com.android.jh.mymusicplayer.util.Control.Controller;
 import com.android.jh.mymusicplayer.util.Interfaces.ControlInterface;
 import com.android.jh.mymusicplayer.util.Services.PlayerService;
+import com.android.jh.mymusicplayer.util.TimeUtil;
 
 import static com.android.jh.mymusicplayer.util.Control.Controller.ACTION;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_NEXT;
@@ -23,18 +24,19 @@ import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_PA
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_PLAY;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_PREVIOUS;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_STOP;
+import static com.android.jh.mymusicplayer.util.Services.PlayerService.getDatas;
+import static com.android.jh.mymusicplayer.util.Services.PlayerService.mMediaPlayer;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.position;
 
 public class PlayerActivity extends AppCompatActivity implements View.OnClickListener, ControlInterface {
 
     private static final String TAG = "PLAYACTIVITY" ;
-    TextView player_text_title, player_text_artist;
+    TextView player_text_title, player_text_artist,player_text_duration,player_text_endduration;
     ViewPager viewPager;
-    SeekBar volum_seekBar;
+    SeekBar volum_seekBar, duration_seekbar;
     ImageView img_player_back, img_player_play, img_player_pre,img_player_next, img_player_whole, img_player_suffle;
     PlayerAdapter playerAdapter;
     Controller controller;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,6 +77,12 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         final AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
         int nMax = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
         int nCurrentVolumn = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        player_text_endduration.setText(getDatas().get(position).getDurationText());
+        duration_seekbar.setOnSeekBarChangeListener(seekBarChangeListener);
+        //SeekBar 길이
+        duration_seekbar.setMax(mMediaPlayer.getDuration());
+        // SeekBar 현재값을 0으로
+        duration_seekbar.setProgress(0);
         volum_seekBar.setMax(nMax);
         volum_seekBar.setProgress(nCurrentVolumn);
         volum_seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -92,30 +100,40 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
             }
         });
     }
-//TODO 원형으로 된 seekbar 구현 및 seekbar 컨트롤시 타임 호출
-//    class TimerThread extends Thread {
-//        // sub thread 를 생성해서 mediaplayer 의 현재 포지션 값으로 seekbar 를 변경해준다. 매 1초마다
-//        // sub thread 에서 동작할 로직 정의
-//        @Override
-//        public void run() {
-//            while (playStatus < STOP) {
-//                if(player != null) {
-//                    // 이 부분은 메인쓰레드에서 동작하도록 Runnable 객체를 메인쓰레드에 던져준다
-//                    runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            try {
-//                                seekBar.setProgress(player.getCurrentPosition());
-//                                txtCurrent.setText(convertMiliToTime(player.getCurrentPosition()) + "");
-//                            } catch (Exception e){ }
-//                        }
-//                    });
-//                }
-//                try { Thread.sleep(1000); } catch (InterruptedException e) {}
-//            }
-//        }
-//    }
-
+    class TimerThread extends Thread {
+        // sub thread 를 생성해서 mediaplayer 의 현재 포지션 값으로 seekbar 를 변경해준다. 매 1초마다
+        // sub thread 에서 동작할 로직 정의
+        @Override
+        public void run() {
+            while (ACTION != ACTION_STOP) {
+                if(mMediaPlayer != null) {
+                    // 이 부분은 메인쓰레드에서 동작하도록 Runnable 객체를 메인쓰레드에 던져준다
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                duration_seekbar.setProgress(mMediaPlayer.getCurrentPosition());
+                                player_text_duration.setText(TimeUtil.convertMiliToTime(mMediaPlayer.getCurrentPosition()) + "");
+                            } catch (Exception e){ }
+                        }
+                    });
+                }
+                try { Thread.sleep(1000); } catch (InterruptedException e) {}
+            }
+        }
+    }
+    SeekBar.OnSeekBarChangeListener seekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            //만약 음원이 움직일때의 소리가 싫다면 onStopTrackingTouch로 이동
+            if(mMediaPlayer != null  && fromUser)
+                mMediaPlayer.seekTo(progress);
+        }
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) { }
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) { }
+    };
 
     @Override
     protected void onDestroy() {
@@ -222,6 +240,10 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         img_player_whole = (ImageView) findViewById(R.id.btn_player_whole);
         img_player_suffle = (ImageView) findViewById(R.id.btn_player_suffle);
         img_player_pre = (ImageView) findViewById(R.id.btn_player_pre);
+        player_text_duration = (TextView) findViewById(R.id.text_duration);
+        player_text_endduration = (TextView)findViewById(R.id.text_endduration);
+        duration_seekbar = (SeekBar) findViewById(R.id.seekBar_duration);
+
         // 2. 뷰페이저용 아답터 생성
         playerAdapter = new PlayerAdapter(PlayerService.getDatas() ,this);
         // 3. 뷰페이저 아답터 연결
@@ -261,14 +283,16 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public void playPlayer() {
+        Thread thread = new TimerThread();
+        thread.start();
         ACTION = ACTION_PAUSE;
-        img_player_play.setImageResource(android.R.drawable.ic_media_pause);
+        img_player_play.setImageResource(R.drawable.pause);
     }
 
     @Override
     public void pausePlayer() {
         ACTION = ACTION_PLAY;
-        img_player_play.setImageResource(android.R.drawable.ic_media_play);
+        img_player_play.setImageResource(R.drawable.play);
     }
 
     @Override
@@ -283,6 +307,6 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public void startService() {
-        img_player_play.setImageResource(android.R.drawable.ic_media_pause);
+        img_player_play.setImageResource(R.drawable.pause);
     }
 }

@@ -162,4 +162,3 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.Holder>{
         dialog.show();
     }
 }
-

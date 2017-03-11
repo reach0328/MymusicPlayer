@@ -1,6 +1,7 @@
 package com.android.jh.mymusicplayer.util.Adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.constraint.ConstraintLayout;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -13,7 +14,9 @@ import android.widget.TextView;
 import com.android.jh.mymusicplayer.Data.Domain.Album;
 import com.android.jh.mymusicplayer.Data.Domain.Common;
 import com.android.jh.mymusicplayer.Data.Domain.Music;
+import com.android.jh.mymusicplayer.PlayerActivity;
 import com.android.jh.mymusicplayer.R;
+import com.android.jh.mymusicplayer.util.Services.PlayerService;
 import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
@@ -109,8 +112,8 @@ public class ExpandAdapter extends BaseExpandableListAdapter {
     }
 
     @Override
-    public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-        List<Music> childDatas = ((Common)datas.get(groupPosition)).getList();
+    public View getChildView(int groupPosition, final int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
+        final List<Music> childDatas = ((Common)datas.get(groupPosition)).getList();
         Music music = childDatas.get(childPosition);
         ChildHolder holder;
 
@@ -130,7 +133,14 @@ public class ExpandAdapter extends BaseExpandableListAdapter {
         holder.text_childartist.setText(music.getArtist());
         holder.text_childartist.setSingleLine();
         holder.text_childtime.setText(music.getDurationText());
-
+        holder.child_layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, PlayerActivity.class);
+                PlayerService.position = PlayerService.getDatas().indexOf(childDatas.get(childPosition));
+                context.startActivity(intent);
+            }
+        });
         return convertView;
     }
 
