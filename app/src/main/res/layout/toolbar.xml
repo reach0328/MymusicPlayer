@@ -19,15 +19,7 @@
             android:fontFamily="sans-serif"
             android:paddingLeft="10dp" />
 
-        <ImageView
-            android:layout_height="match_parent"
-            app:srcCompat="@android:drawable/presence_audio_online"
-            android:id="@+id/img_voiceToSearch"
-            android:layout_centerVertical="true"
-            android:layout_alignParentEnd="true"
-            android:layout_width="30dp" />
-
-        <android.support.v7.widget.SearchView
+    <android.support.v7.widget.SearchView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_alignParentEnd="true"
@@ -35,13 +27,5 @@
             android:visibility="gone"
             android:id="@+id/SearchView"
             android:layout_marginRight="30dp" />
-
-        <ImageView
-            android:layout_width="30dp"
-            android:layout_height="match_parent"
-            app:srcCompat="@android:drawable/ic_menu_revert"
-            android:id="@+id/img_SearchBack"
-            android:visibility="gone"
-            android:layout_marginLeft="10dp" />
 
 </RelativeLayout>

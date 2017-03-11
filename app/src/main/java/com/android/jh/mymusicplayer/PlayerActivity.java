@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -61,7 +60,6 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         // 특정 페이지 호출
         Intent intent = getIntent();
         if(intent != null){
-            Bundle bundle = intent.getExtras();
             requestService(ACTION_PAGE);
             init();
         }
@@ -196,7 +194,6 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void playActioncheck() {
-        Log.i("ACTION","========================="+ACTION);
         switch (ACTION) {
             case ACTION_STOP :
             case ACTION_PLAY :

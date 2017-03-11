@@ -16,7 +16,6 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -52,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // 권한 요청 코드
     private final int REQ_PERMISSION = 100;
     DrawerLayout drawer;
-    ImageView img_voiceToSearch,img_botton,img_bottom_pre,img_bottom_play,img_bottom_next,img_SearchBack;
+    ImageView img_botton,img_bottom_pre,img_bottom_play,img_bottom_next,img_SearchBack;
     TextView text_playLIstName,text_bottom_title,text_bottom_artist,text_bottom_Time;
     SearchView searchView;
     ViewPager list_viewPager;
@@ -77,11 +76,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        requestService(ACTION_STARTSERVICE);
         controller = Controller.getInstance();
         controller.addObservers(this);
         layoutInit();
         checkPermission();
+        requestService(ACTION_STARTSERVICE);
     }
 
 
@@ -172,7 +171,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void playerActionCheck() {
-        Log.i("ACTION","========================="+ACTION);
         switch (ACTION) {
             case ACTION_STOP :
             case ACTION_PLAY :
@@ -218,7 +216,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void layoutInit() {
-        img_voiceToSearch = (ImageView)findViewById(R.id.img_voiceToSearch);
         img_bottom_next = (ImageView) findViewById(R.id.btn_bottom_next);
         img_bottom_play = (ImageView)findViewById(R.id.btn_bottom_play);
         img_bottom_pre = (ImageView) findViewById(R.id.btn_bottom_pre);
@@ -242,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         FragmentAdapter adapter = new FragmentAdapter(getSupportFragmentManager());
         adapter.addFragment(ListFragment.newInstance(1, ListFragment.TYPE_SONG));
         adapter.addFragment(ListFragment.newInstance(2, ListFragment.TYPE_ARTIST));
-        adapter.addFragment(ListFragment.newInstance(3, ListFragment.TYPE_ARTIST));
+        adapter.addFragment(ListFragment.newInstance(1, ListFragment.TYPE_ALBUM));
         list_viewPager.setAdapter(adapter);
         // 페이저 리스너 :  페이저가 변경 되었을대 탭을 바꿔주는 리스너
         list_viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));

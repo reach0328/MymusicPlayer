@@ -14,6 +14,7 @@ import android.media.session.MediaSession;
 import android.net.Uri;
 import android.os.IBinder;
 import android.support.v7.app.NotificationCompat;
+import android.util.Log;
 
 import com.android.jh.mymusicplayer.Data.Domain.Music;
 import com.android.jh.mymusicplayer.Data.Loader.DataLoader;
@@ -47,7 +48,7 @@ public class PlayerService extends Service {
     private MediaSession mSession;
     private MediaController mController;
     public static int position = -1;
-    public static boolean isON = false;
+    public boolean isPlaying = false;
     private static List<Music> datas = new ArrayList<>();
     public static Controller controller = null;
 
@@ -91,6 +92,7 @@ public class PlayerService extends Service {
         mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
+                Log.i(TAG_SERVICES,"==========================================");
                 playerNext();
             }
         });
@@ -115,12 +117,11 @@ public class PlayerService extends Service {
         } else if(action.equalsIgnoreCase( ACTION_STOP )) {
             playerStop();
         } else if(action.equalsIgnoreCase(ACTION_STARTSERVICE)){
-            if(!isON) {
-                playerPause();
-                isON = true;
-            } else {
+            if(isPlaying) {
                 buildNotification( generateAction( android.R.drawable.ic_media_pause, "Pause", ACTION_PAUSE ),ACTION_PAUSE );
                 controller.startService();
+            } else {
+                buildNotification(generateAction(android.R.drawable.ic_media_play, "Play", ACTION_PLAY),ACTION_PLAY);
             }
         }
     }
@@ -218,7 +219,8 @@ public class PlayerService extends Service {
             public void onPlay() {
                 super.onPlay();
                 playPlayer();
-                controller.play();
+                if(controller!=null)
+                    controller.play();
             }
 
             @Override
@@ -232,13 +234,15 @@ public class PlayerService extends Service {
             @Override
             public void onSkipToNext() {
                 nextPlayer();
-                controller.next();
+                if(controller!=null)
+                    controller.next();
             }
 
             @Override
             public void onSkipToPrevious() {
                 prePlayer();
-                controller.pre();
+                if(controller!=null)
+                    controller.pre();
             }
 
             @Override
@@ -257,11 +261,13 @@ public class PlayerService extends Service {
 
     public void playPlayer() {
         buildNotification( generateAction( android.R.drawable.ic_media_pause, "Pause", ACTION_PAUSE ),ACTION_PAUSE );
+        isPlaying = true;
         mMediaPlayer.start();
     }
 
     public void pausePlayer() {
         buildNotification(generateAction(android.R.drawable.ic_media_play, "Play", ACTION_PLAY),ACTION_PLAY);
+        isPlaying = false;
         mMediaPlayer.pause();
     }
 
@@ -269,6 +275,7 @@ public class PlayerService extends Service {
         if(position+1 <datas.size())
             position = position + 1;
         initMedia();
+        isPlaying = true;
         mMediaPlayer.start();
         buildNotification( generateAction( android.R.drawable.ic_media_pause, "Pause", ACTION_PAUSE ),ACTION_PAUSE );
     }
@@ -277,6 +284,7 @@ public class PlayerService extends Service {
         if(position -1 > 0)
             position = position -1;
         initMedia();
+        isPlaying = true;
         mMediaPlayer.start();
         buildNotification( generateAction( android.R.drawable.ic_media_pause, "Pause", ACTION_PAUSE ),ACTION_PAUSE );
     }

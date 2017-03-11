@@ -50,4 +50,9 @@ public class Artist extends Common{
     public Uri getImageUri() {
         return album_image_uri;
     }
+
+    @Override
+    public List<Music> getList() {
+        return musics;
+    }
 }

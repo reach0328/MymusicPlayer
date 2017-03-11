@@ -4,6 +4,8 @@ import android.net.Uri;
 
 import com.android.jh.mymusicplayer.util.TimeUtil;
 
+import java.util.List;
+
 public class Music extends Common {
     // music info.
     public int id;
@@ -12,6 +14,7 @@ public class Music extends Common {
     public int artist_id;
     public String artist;
     public String artist_key;
+    public String album;
     public int album_id;
     public Uri album_image_uri;
     public int genre_id;
@@ -20,6 +23,14 @@ public class Music extends Common {
     public String composer;
     public String content_type;
     public String year;
+
+    public String getAlbum() {
+        return album;
+    }
+
+    public void setAlbum(String album) {
+        this.album = album;
+    }
 
     // add info.
     public int order;
@@ -48,5 +59,10 @@ public class Music extends Common {
     @Override
     public Uri getImageUri() {
         return album_image_uri;
+    }
+
+    @Override
+    public List<Music> getList() {
+        return null;
     }
 }

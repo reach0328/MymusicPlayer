@@ -45,7 +45,6 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.Holder>{
                 case ListFragment.TYPE_SONG:
                     item_layout_id = R.layout.title_list;
                     break;
-                case ListFragment.TYPE_ALBUM:
                 case ListFragment.TYPE_ARTIST:
                     item_layout_id = R.layout.aritist_list;
                     break;
@@ -73,6 +72,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.Holder>{
             holder.txtTitle.setSelected(true);
         }
         holder.txtArtist.setText(artist);
+        holder.txtTitle.setSingleLine();
         holder.position = position;
         switch(flag){
             case ListFragment.TYPE_ARTIST_ALERT:
@@ -83,7 +83,6 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.Holder>{
                         .bitmapTransform(new CropCircleTransformation(context))
                         .into(holder.image);     // 2. 입력될 이미지뷰
                 break;
-            case ListFragment.TYPE_ALBUM:
             case ListFragment.TYPE_ARTIST:
                 Glide.with(context)              // 0. 글라이드 사용
                         .load(imgUri) // 1. 로드할 대상 Uri

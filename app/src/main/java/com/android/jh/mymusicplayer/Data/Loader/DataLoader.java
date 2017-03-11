@@ -35,7 +35,7 @@ public class DataLoader {
         return artistDatas;
     }
 
-    public static List<Album> getAlbumDatas(Context context) {
+    public static List<Album> getAlbum(Context context) {
         if(albumDatas == null || albumDatas.size() == 0){
             loadAlbum(context);
         }
@@ -44,7 +44,52 @@ public class DataLoader {
 
     //TODO 앨범별 로드하여 확장형 리스트로 작성!!
     private static void loadAlbum(Context context) {
+        // 1. 데이터 컨테츠 URI 정의
+        final Uri URI = MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI;
 
+        // 2. 데이터에서 가져올 데이터 컬럼명을 String 배열에 담는다.
+        //    데이터컬럼명은 Content Uri 의 패키지에 들어있다.
+        final String PROJ[] = {
+                MediaStore.Audio.Albums._ID,
+                MediaStore.Audio.Albums.ALBUM,
+                MediaStore.Audio.Albums.ALBUM_ART,
+                MediaStore.Audio.Albums.ALBUM_KEY,
+                MediaStore.Audio.Albums.ARTIST,
+                MediaStore.Audio.Albums.NUMBER_OF_SONGS,
+                MediaStore.Audio.Albums.LAST_YEAR
+        };
+
+        // 1. 데이터에 접근하기위해 ContentResolver 를 불러온다.
+        ContentResolver resolver = context.getContentResolver();
+
+        // 2. Content Resolver 로 쿼리한 데이터를 Cursor 에 담는다.
+        Cursor cursor = resolver.query(URI, PROJ, null, null, null);
+
+        // 3. Cursor 에 담긴 데이터를 반복문을 돌면서 꺼낸다
+        if(cursor != null) {
+            while(cursor.moveToNext()) {
+                Album album = new Album();
+                // 데이터
+                album.setId(getInt(cursor, PROJ[0]));
+                album.setAlbum(getString(cursor, PROJ[1]));
+                album.setAlbum_art(getString(cursor, PROJ[2]));
+                album.setAlbum_key(getString(cursor, PROJ[3]));
+                album.setArtist(getString(cursor,PROJ[4]));
+                album.setNumberofsong(getString(cursor,PROJ[5]));
+                album.setYaer(getString(cursor,PROJ[6]));
+                album.setAlbum_img(getAlbumImageSimple(album.id));
+                List<Music> musics = new ArrayList<>();
+                for(Music music : musicDatas) {
+                    if(album.getAlbum().equals(music.getAlbum()))
+                        musics.add(music);
+                }
+
+                album.setMusics(musics);
+                albumDatas.add(album);
+            }
+            // 처리 후 커서를 닫아준다
+            cursor.close();
+        }
     }
 
     // load 함수는 get 함수를 통해서만 접근한다.
@@ -65,6 +110,7 @@ public class DataLoader {
                 MediaStore.Audio.Media.IS_MUSIC,
                 MediaStore.Audio.Media.COMPOSER,
                 MediaStore.Audio.Media.YEAR,
+                MediaStore.Audio.Media.ALBUM
         };
 
         // 1. 데이터에 접근하기위해 ContentResolver 를 불러온다.
@@ -88,7 +134,7 @@ public class DataLoader {
                 music.is_music     = getString(cursor, PROJ[7]);
                 music.composer     = getString(cursor, PROJ[8]);
                 music.year         = getString(cursor, PROJ[9]);
-
+                music.album        = getString(cursor, PROJ[10]);
                 music.music_uri       = getMusicUri(music.id);
                 music.album_image_uri = getAlbumImageSimple(music.album_id);
 
@@ -134,8 +180,7 @@ public class DataLoader {
                 artist.album_id = getAlbumIdByArtistId(artist.id);
                 artist.album_image_uri = getAlbumUriByArtistId(artist.id);
                 List<Music> musics = new ArrayList<>();
-                for(int i=0; i<musicDatas.size(); i++) {
-                    Music music = musicDatas.get(i);
+                for(Music music : musicDatas) {
                     if(music.artist_key.equals(artist.artist_key))
                         musics.add(music);
                 }
@@ -165,7 +210,6 @@ public class DataLoader {
         return null;
     }
 
-
     private static String getString(Cursor cursor, String columnName){
         int idx = cursor.getColumnIndex(columnName);
         return cursor.getString(idx);
@@ -186,4 +230,4 @@ public class DataLoader {
     private static Uri getAlbumImageSimple(int album_id){
         return Uri.parse("content://media/external/audio/albumart/" + album_id);
     }
-    }
+}
