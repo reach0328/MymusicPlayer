@@ -5,11 +5,15 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import com.android.jh.mymusicplayer.Data.Domain.Album;
 import com.android.jh.mymusicplayer.Data.Domain.Artist;
 import com.android.jh.mymusicplayer.Data.Domain.Music;
+import com.j256.ormlite.android.apptools.OpenHelperManager;
+import com.j256.ormlite.dao.Dao;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +23,12 @@ public class DataLoader {
     private static List<Music> musicDatas = new ArrayList<>();
     private static List<Artist> artistDatas = new ArrayList<>();
     private static List<Album> albumDatas = new ArrayList<>();
+    private static List<Music> MyListDatas = new ArrayList<>();
+
+    public static List<Music> getMyListDatas(Context context) throws SQLException{
+        loadMyList(context);
+        return MyListDatas;
+    }
 
     // static 변수인 datas 를 체크해서 널이면 load 를 실행
     public static List<Music> getMusics(Context context){
@@ -42,7 +52,34 @@ public class DataLoader {
         return albumDatas;
     }
 
-    //TODO 앨범별 로드하여 확장형 리스트로 작성!!
+
+    public static void loadMyList(Context context) throws SQLException {
+        DBHelper dbHelper = OpenHelperManager.getHelper(context,DBHelper.class);
+        Dao<Music, Integer> musicDao = dbHelper.getMusicDao();
+        MyListDatas = musicDao.queryForAll();
+        for(Music music : MyListDatas){
+            music.album_image_uri = Uri.parse(music.album_image_uri_string);
+            music.music_uri = Uri.parse(music.music_uri_string);
+        }
+    }
+
+    public static void saveToMyList(Context context, Music music) throws SQLException {
+        DBHelper dbHelper = OpenHelperManager.getHelper(context,DBHelper.class);
+        Dao<Music,Integer> memoDao = dbHelper.getMusicDao();
+        memoDao.create(music);
+        loadMyList(context);
+    }
+
+    public static void deleteToMyList(Context context, int position) throws SQLException{
+        DBHelper dbHelper = OpenHelperManager.getHelper(context,DBHelper.class);
+        Dao<Music,Integer> musicDao = dbHelper.getMusicDao();
+        Music music = MyListDatas.get(position);
+        Log.i("DAO!!!!!!!!!!!!!!!","=================="+music.getTitle());
+        musicDao.delete(music);
+        loadMyList(context);
+    }
+
+
     private static void loadAlbum(Context context) {
         // 1. 데이터 컨테츠 URI 정의
         final Uri URI = MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI;
@@ -124,7 +161,7 @@ public class DataLoader {
             while(cursor.moveToNext()) {
                 Music music = new Music();
                 // 데이터
-                music.id           = getInt(   cursor, PROJ[0]);
+                music._id           = getInt(   cursor, PROJ[0]);
                 music.album_id     = getInt(   cursor, PROJ[1]);
                 music.title        = getString(cursor, PROJ[2]);
                 music.artist_id    = getInt(   cursor, PROJ[3]);
@@ -135,9 +172,10 @@ public class DataLoader {
                 music.composer     = getString(cursor, PROJ[8]);
                 music.year         = getString(cursor, PROJ[9]);
                 music.album        = getString(cursor, PROJ[10]);
-                music.music_uri       = getMusicUri(music.id);
+                music.music_uri       = getMusicUri(music._id);
                 music.album_image_uri = getAlbumImageSimple(music.album_id);
-
+                music.music_uri_string = music.music_uri.toString();
+                music.album_image_uri_string = music.album_image_uri.toString();
                 musicDatas.add(music);
             }
             // 처리 후 커서를 닫아준다

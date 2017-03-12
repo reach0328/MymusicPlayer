@@ -6,7 +6,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +16,7 @@ import com.android.jh.mymusicplayer.R;
 import com.android.jh.mymusicplayer.util.Adapter.ExpandAdapter;
 import com.android.jh.mymusicplayer.util.Adapter.ListAdapter;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public class ListFragment extends Fragment {
@@ -29,28 +29,38 @@ public class ListFragment extends Fragment {
     public static final String TYPE_ARTIST = "ARTIST";
     public static final String TYPE_ALBUM = "ALBUM";
     public static final String TYPE_ARTIST_ALERT = "ALERT";
+    public static final String TYPE_ADD_ALERT = "ADD";
+    public static final String TYPE_MYLIST = "MYLIST";
 
     private int mColumnCount = 1;
     private String mListType = "";
-
+    RecyclerView recyclerView;
+    ListAdapter adapter;
     private List<?> datas;
 
     public ListFragment() {
 
     }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
             mListType = getArguments().getString(ARG_LIST_TYPE);
-            Log.i("mListType","============================="+mListType);
             if(TYPE_SONG.equals(mListType))
                 datas = DataLoader.getMusics(getContext());
             else if(TYPE_ARTIST.equals(mListType))
                 datas = DataLoader.getArtist(getContext());
             else if(TYPE_ALBUM.equals(mListType))
                 datas = DataLoader.getAlbum(getContext());
+            else if(TYPE_MYLIST.equals(mListType)) {
+                try {
+                    datas = DataLoader.getMyListDatas(getContext());
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
     }
@@ -61,8 +71,8 @@ public class ListFragment extends Fragment {
         args.putString(ARG_LIST_TYPE, listType);
         fragment.setArguments(args);
         return fragment;
-
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -73,17 +83,26 @@ public class ListFragment extends Fragment {
         }
         else {
             view = inflater.inflate(R.layout.fragment_list, container, false);
-            RecyclerView recyclerView = (RecyclerView) view;
+            recyclerView = (RecyclerView) view;
             if (mColumnCount <= 1) {
                 recyclerView.setLayoutManager(new LinearLayoutManager(context));
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new ListAdapter(context, datas, mListType));
+            adapter = new ListAdapter(context,datas,mListType);
+            recyclerView.setAdapter(adapter);
         }
         return view;
     }
 
+    public void notifyrecycler(){
+        try {
+            adapter.setDatas(DataLoader.getMyListDatas(context));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        adapter.notifyDataSetChanged();
+    }
 
     @Override
     public void onAttach(Context context) {

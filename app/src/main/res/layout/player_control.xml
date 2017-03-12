@@ -31,9 +31,9 @@
             android:id="@+id/btn_player_play"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            app:srcCompat="@drawable/play"
+            android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true" />
+            app:srcCompat="@drawable/play" />
 
         <ImageView
             android:id="@+id/btn_player_pre"
@@ -103,6 +103,17 @@
             android:layout_alignParentEnd="true"
             android:layout_below="@+id/seekBar_duration"
             android:text="00:00" />
+
+        <TextView
+            android:id="@+id/text_onesong"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignStart="@+id/btn_player_whole"
+            android:layout_alignTop="@+id/btn_player_whole"
+            android:gravity="center"
+            android:text="1"
+            android:textAlignment="center"
+            android:visibility="gone" />
 
     </RelativeLayout>
 </android.support.v7.widget.CardView>

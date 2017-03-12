@@ -14,7 +14,6 @@ import android.media.session.MediaSession;
 import android.net.Uri;
 import android.os.IBinder;
 import android.support.v7.app.NotificationCompat;
-import android.util.Log;
 
 import com.android.jh.mymusicplayer.Data.Domain.Music;
 import com.android.jh.mymusicplayer.Data.Loader.DataLoader;
@@ -32,9 +31,6 @@ import static android.app.PendingIntent.getService;
 
 public class PlayerService extends Service {
     private static final int NOTIFICATION_ID = 1;
-
-    private static final String TAG_SERVICES = "SERVICES";
-    private static final String TAG_NOTI = "NOTIFICATION";
     public static final String ACTION_PLAY = "action_play";
     public static final String ACTION_PAUSE = "action_pause";
     public static final String ACTION_NEXT = "action_next";
@@ -51,7 +47,7 @@ public class PlayerService extends Service {
     public boolean isPlaying = false;
     private static List<Music> datas = new ArrayList<>();
     public static Controller controller = null;
-
+    public static boolean isOne = false;
     public static List<Music> getDatas() {
         return datas;
     }
@@ -85,15 +81,14 @@ public class PlayerService extends Service {
         // error code -38 스타트를 안해주면 나온다!!!!
         if(mMediaPlayer !=null)
             mMediaPlayer.reset();
-
         // 플레이어에 음원 세팅
         mMediaPlayer = MediaPlayer.create(this, musicUri);
-        mMediaPlayer.setLooping(false); // 반복여부
+        mMediaPlayer.setLooping(isOne); // 반복여부
         mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                Log.i(TAG_SERVICES,"==========================================");
-                playerNext();
+                if(!isOne)
+                    playerNext();
             }
         });
     }

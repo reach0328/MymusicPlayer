@@ -3,26 +3,50 @@ package com.android.jh.mymusicplayer.Data.Domain;
 import android.net.Uri;
 
 import com.android.jh.mymusicplayer.util.TimeUtil;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
 import java.util.List;
 
+@DatabaseTable(tableName = "music")
 public class Music extends Common {
-    // music info.
+    @DatabaseField(generatedId = true)
     public int id;
+    // music info.
+    @DatabaseField
+    public int _id;
+    @DatabaseField
+    public String music_uri_string;
     public Uri music_uri;
+    @DatabaseField
     public String title;
+    @DatabaseField
     public int artist_id;
+    @DatabaseField
     public String artist;
+    @DatabaseField
     public String artist_key;
+    @DatabaseField
     public String album;
+    @DatabaseField
     public int album_id;
+    @DatabaseField
+    public String album_image_uri_string;
     public Uri album_image_uri;
-    public int genre_id;
+    @DatabaseField
     public int duration;
+    @DatabaseField
     public String is_music;
+    @DatabaseField
     public String composer;
-    public String content_type;
+    @DatabaseField
     public String year;
+
+
+    public Music() {
+
+    }
+
 
     public String getAlbum() {
         return album;

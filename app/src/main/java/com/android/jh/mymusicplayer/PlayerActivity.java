@@ -1,5 +1,7 @@
 package com.android.jh.mymusicplayer;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Bundle;
@@ -25,18 +27,23 @@ import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_PL
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_PREVIOUS;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.ACTION_STOP;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.getDatas;
+import static com.android.jh.mymusicplayer.util.Services.PlayerService.isOne;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.mMediaPlayer;
 import static com.android.jh.mymusicplayer.util.Services.PlayerService.position;
 
 public class PlayerActivity extends AppCompatActivity implements View.OnClickListener, ControlInterface {
 
+    //TODO 메인 엑티비티에서 재생중일때 듀레이션 처음부터 시작되지않게
+    //TODO 메인 pause시에 다음곡 누르면 pause로 안바뀜
     private static final String TAG = "PLAYACTIVITY" ;
-    TextView player_text_title, player_text_artist,player_text_duration,player_text_endduration;
+    TextView player_text_title, player_text_artist,player_text_duration,player_text_endduration,text_onesong;
     ViewPager viewPager;
     SeekBar volum_seekBar, duration_seekbar;
     ImageView img_player_back, img_player_play, img_player_pre,img_player_next, img_player_whole, img_player_suffle;
     PlayerAdapter playerAdapter;
     Controller controller;
+    int nCurrentVolumn;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,7 +83,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
     private void controllerInit() {
         final AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
         int nMax = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-        int nCurrentVolumn = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        nCurrentVolumn = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         player_text_endduration.setText(getDatas().get(position).getDurationText());
         duration_seekbar.setOnSeekBarChangeListener(seekBarChangeListener);
         //SeekBar 길이
@@ -86,20 +93,18 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         volum_seekBar.setMax(nMax);
         volum_seekBar.setProgress(nCurrentVolumn);
         volum_seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-
             @Override public void onStopTrackingTouch(SeekBar seekBar) {
-                // TODO Auto-generated method stub
+
             }
             @Override public void onStartTrackingTouch(SeekBar seekBar) {
-                // TODO Auto-generated method stub
             }
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                // TODO Auto-generated method stub
                 audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, progress, 0);
             }
         });
     }
+
     class TimerThread extends Thread {
         // sub thread 를 생성해서 mediaplayer 의 현재 포지션 값으로 seekbar 를 변경해준다. 매 1초마다
         // sub thread 에서 동작할 로직 정의
@@ -179,7 +184,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         }
         player_text_artist.setText(PlayerService.getDatas().get(position).getArtist());
         // 뷰페이저로 이동할 경우 플레이어 세팅된 값을 해제한 후 로직을 실행한다
-        img_player_play.setImageResource(android.R.drawable.ic_media_play);
+        img_player_play.setImageResource(R.drawable.play);
         // 컨트롤러 세팅
         controllerInit();
         playActioncheck();
@@ -205,6 +210,14 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
                 playActioncheck();
                 break;
             case R.id.btn_player_whole :
+                if(!isOne) {
+                    //TODO 인터페이스 사용 콜백 형태로 구현
+                    text_onesong.setVisibility(View.VISIBLE);
+                    isOne = true;
+                } else {
+                    text_onesong.setVisibility(View.GONE);
+                    isOne = false;
+                }
                 break;
             case R.id.btn_player_suffle :
                 break;
@@ -243,7 +256,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         player_text_duration = (TextView) findViewById(R.id.text_duration);
         player_text_endduration = (TextView)findViewById(R.id.text_endduration);
         duration_seekbar = (SeekBar) findViewById(R.id.seekBar_duration);
-
+        text_onesong = (TextView) findViewById(R.id.text_onesong);
         // 2. 뷰페이저용 아답터 생성
         playerAdapter = new PlayerAdapter(PlayerService.getDatas() ,this);
         // 3. 뷰페이저 아답터 연결
@@ -259,6 +272,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         img_player_pre.setOnClickListener(this);
         img_player_back.setOnClickListener(this);
         img_player_play.setOnClickListener(this);
+        img_player_whole.setOnClickListener(this);
     }
 
     // 페이지 트렌스포머
@@ -280,6 +294,31 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         }
     };
 
+    public class VolumeReciver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals("android.media.VOLUME_CHANGED_ACTION")) {
+//            volumeInterface = (VolumeInterface) context;
+//                volumeInterface.changed();
+                volum_seekBar.setProgress(nCurrentVolumn);
+            }
+        }
+    }
+//    @Override
+//    public boolean dispatchKeyEvent(KeyEvent event) {
+//        int action = event.getAction();
+//        int keyCode = event.getKeyCode();
+//        switch (keyCode) {
+//            case KeyEvent.KEYCODE_VOLUME_DOWN:
+//            case KeyEvent.KEYCODE_VOLUME_UP:
+//                if (action == KeyEvent.ACTION_DOWN||action == KeyEvent.ACTION_DOWN) {
+//                    volum_seekBar.setProgress(nCurrentVolumn);
+//                }
+//                return true;
+//            default:
+//                return super.dispatchKeyEvent(event);
+//        }
+//    }
 
     @Override
     public void playPlayer() {

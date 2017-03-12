@@ -1,5 +1,7 @@
 package com.android.jh.mymusicplayer;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -13,17 +15,23 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.jh.mymusicplayer.Data.Domain.Music;
+import com.android.jh.mymusicplayer.Data.Loader.DataLoader;
 import com.android.jh.mymusicplayer.util.Adapter.FragmentAdapter;
+import com.android.jh.mymusicplayer.util.Adapter.ListAdapter;
 import com.android.jh.mymusicplayer.util.Control.Controller;
 import com.android.jh.mymusicplayer.util.Fragment.ListFragment;
 import com.android.jh.mymusicplayer.util.Interfaces.ControlInterface;
@@ -31,6 +39,7 @@ import com.android.jh.mymusicplayer.util.Permission.PermissionControl;
 import com.android.jh.mymusicplayer.util.Services.PlayerService;
 import com.bumptech.glide.Glide;
 
+import java.sql.SQLException;
 import java.util.Random;
 
 import static com.android.jh.mymusicplayer.util.Control.Controller.ACTION;
@@ -46,7 +55,6 @@ import static com.android.jh.mymusicplayer.util.Services.PlayerService.position;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,ControlInterface {
 
-
     private static final String TAG = "MAINACTIVITY" ;
     // 권한 요청 코드
     private final int REQ_PERMISSION = 100;
@@ -60,7 +68,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Toolbar list_toolbar;
     Controller controller;
     FloatingActionButton fab;
-
+    Dialog dialog;
+    ListFragment myList;
     @Override
     protected void onDestroy() {
         controller.deleteObservers(this);
@@ -147,9 +156,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Intent intent= new Intent(this,PlayerActivity.class);
         switch (view.getId()) {
             case R.id.fabButton :
-                Random random = new Random();
-                position = random.nextInt(getDatas().size());
-                startActivity(intent);
+                if(list_viewPager.getCurrentItem()==3){
+                    makeAlert();
+                } else {
+                    Random random = new Random();
+                    position = random.nextInt(getDatas().size());
+                    startActivity(intent);
+                }
                 break;
             case R.id.btn_bottom_play :
                 playerActionCheck();
@@ -164,7 +177,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.list_playControl_cardview :
                 intent = new Intent(this,PlayerActivity.class);
-
                 startActivity(intent);
                 break;
         }
@@ -241,7 +253,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         adapter.addFragment(ListFragment.newInstance(1, ListFragment.TYPE_SONG));
         adapter.addFragment(ListFragment.newInstance(2, ListFragment.TYPE_ARTIST));
         adapter.addFragment(ListFragment.newInstance(1, ListFragment.TYPE_ALBUM));
-        adapter.addFragment(ListFragment.newInstance(1, ListFragment.TYPE_ALBUM));
+        myList = ListFragment.newInstance(1, ListFragment.TYPE_MYLIST);
+        adapter.addFragment(myList);
+        list_viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if(position==3){
+                    fab.setImageResource(R.drawable.plus);
+                } else {
+                    fab.setImageResource(R.drawable.shuffle);
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
         list_viewPager.setAdapter(adapter);
         // 페이저 리스너 :  페이저가 변경 되었을대 탭을 바꿔주는 리스너
         list_viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
@@ -307,4 +340,42 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void startService() {
         img_bottom_play.setImageResource(R.drawable.pause);
     }
+
+    public void makeAlert() {
+        // LayoutInflater를 통해 위의 custom layout을 AlertDialog에 반영. 이 외에는 거의 동일하다.
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        View alert_view = inflater.inflate(R.layout.add_alert, null);
+        //멤버의 세부내역 입력 Dialog 생성 및 보이기
+        AlertDialog.Builder buider = new AlertDialog.Builder(this);
+        Button ok = (Button) alert_view.findViewById(R.id.alert_save);
+        Button cancle = (Button) alert_view.findViewById(R.id.alert_cancle);
+        RecyclerView recyclerView = (RecyclerView) alert_view.findViewById(R.id.addalertrecycler);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(new ListAdapter(this, getDatas(), ListFragment.TYPE_ADD_ALERT));
+        ok.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                for(Integer position : ListAdapter.selected){
+                    try {
+                        if(!DataLoader.getMyListDatas(getApplicationContext()).contains(getDatas().get(position)))
+                            DataLoader.saveToMyList(getApplicationContext(),getDatas().get(position));
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+                myList.notifyrecycler();
+                dialog.dismiss();
+            }
+        });
+        cancle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        buider.setView(alert_view);
+        dialog = buider.create();
+        dialog.show();
+    }
+
 }

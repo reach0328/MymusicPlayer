@@ -3,6 +3,7 @@ package com.android.jh.mymusicplayer.util.Adapter;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.widget.CardView;
@@ -12,17 +13,23 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.jh.mymusicplayer.Data.Domain.Artist;
 import com.android.jh.mymusicplayer.Data.Domain.Common;
+import com.android.jh.mymusicplayer.Data.Domain.Music;
+import com.android.jh.mymusicplayer.Data.Loader.DataLoader;
 import com.android.jh.mymusicplayer.PlayerActivity;
 import com.android.jh.mymusicplayer.R;
 import com.android.jh.mymusicplayer.util.Fragment.ListFragment;
 import com.android.jh.mymusicplayer.util.Services.PlayerService;
 import com.bumptech.glide.Glide;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
@@ -35,12 +42,14 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.Holder>{
     private String flag;
     private int item_layout_id;
     private Context context;
+    public static List<Integer> selected;
 
     public ListAdapter(Context context, List<?> datas, String flag) {
             this.context = context;
             this.datas = datas;
             this.flag = flag;
             switch(flag){
+                case ListFragment.TYPE_MYLIST:
                 case ListFragment.TYPE_ARTIST_ALERT:
                 case ListFragment.TYPE_SONG:
                     item_layout_id = R.layout.title_list;
@@ -48,7 +57,15 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.Holder>{
                 case ListFragment.TYPE_ARTIST:
                     item_layout_id = R.layout.aritist_list;
                     break;
+                case ListFragment.TYPE_ADD_ALERT:
+                    selected = new ArrayList<>();
+                    item_layout_id = R.layout.add_list;
+                    break;
             }
+    }
+
+    public void setDatas(List<?> datas) {
+        this.datas = datas;
     }
 
     @Override
@@ -59,7 +76,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.Holder>{
     }
 
     @Override
-    public void onBindViewHolder(Holder holder, int position) {
+    public void onBindViewHolder(final Holder holder, final int position) {
         Common common = (Common) datas.get(position);
         String title = common.getTitle();
         String artist = common.getArtist();
@@ -75,6 +92,15 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.Holder>{
         holder.txtTitle.setSingleLine();
         holder.position = position;
         switch(flag){
+            case ListFragment.TYPE_ADD_ALERT:
+                holder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if(isChecked && !selected.contains(position))
+                            selected.add(position);
+                    }
+                });
+            case ListFragment.TYPE_MYLIST:
             case ListFragment.TYPE_ARTIST_ALERT:
             case ListFragment.TYPE_SONG:
                 holder.txtTime.setText(duration);
@@ -100,6 +126,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.Holder>{
         CardView cardView;
         TextView txtTitle,txtArtist,txtTime;
         ImageView image;
+        CheckBox checkBox;
         int position;
 
         public Holder(View itemView) {
@@ -109,6 +136,35 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.Holder>{
             txtArtist = (TextView) itemView.findViewById(R.id.text_list_artist);
             image = (ImageView) itemView.findViewById(R.id.img_list);
             switch(flag){
+                case ListFragment.TYPE_MYLIST:
+                    cardView.setOnLongClickListener(new View.OnLongClickListener() {
+                        @Override
+                        public boolean onLongClick(View v) {
+                            android.support.v7.app.AlertDialog.Builder alertDialog = new android.support.v7.app.AlertDialog.Builder(context);
+                            // 팝업창 제목
+                            alertDialog.setTitle("삭제 하시겠습니까?");
+                            // YES 버튼 기능
+                            alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    try {
+                                        DataLoader.deleteToMyList(context,position);
+                                    } catch (SQLException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            });
+                            // NO 버튼 기능
+                            alertDialog.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    dialogInterface.cancel();
+                                }
+                            });
+                            alertDialog.show();
+                            return true;
+                        }
+                    });
                 case ListFragment.TYPE_ARTIST_ALERT:
                 case ListFragment.TYPE_SONG:
                     txtTime = (TextView) itemView.findViewById(R.id.text_list_Time);
@@ -116,10 +172,14 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.Holder>{
                         @Override
                         public void onClick(View v) {
                             Intent intent = new Intent(context, PlayerActivity.class);
-                            if(flag!=ListFragment.TYPE_ARTIST_ALERT)
+                            if(flag==ListFragment.TYPE_SONG)
                                 PlayerService.position = position;
                             else {
-                                PlayerService.position = PlayerService.getDatas().indexOf(datas.get(position));
+                                Music temp = (Music) datas.get(position);
+                                for(int i =0; i <PlayerService.getDatas().size();i++) {
+                                    if(PlayerService.getDatas().get(i).music_uri_string.equals(temp.music_uri_string))
+                                        PlayerService.position = i;
+                                }
                             }
                             context.startActivity(intent);
                         }
@@ -135,8 +195,10 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.Holder>{
                         }
                     });
                     break;
-                default :
-                    // nothing
+                case ListFragment.TYPE_ADD_ALERT:
+                    this.setIsRecyclable(false);
+                    txtTime = (TextView) itemView.findViewById(R.id.text_list_Time);
+                    checkBox = (CheckBox) itemView.findViewById(R.id.checkBox);
                     break;
             }
         }
