@@ -4,6 +4,12 @@
 
 -------------------------------------------------------
 
+![](http://cfile2.uf.tistory.com/image/2715EE4F58C5F0972B9DB6)
+
+![](http://cfile10.uf.tistory.com/image/2170784F58C5F098135280)
+
+![](http://cfile21.uf.tistory.com/image/220D704F58C5F0982C4F89)
+
 > gif 가 보이지 않는 경우클릭하시면 새창으로 볼 수 있습니다.
 ####**화면 gif_1**
 ![](http://cfile23.uf.tistory.com/image/2363A73D58C5494409C32C)
