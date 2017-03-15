@@ -1,17 +1,26 @@
 #**MYmusicPlayer**
--> 뮤직 플레이어
-> Android Project
+
+> - 뮤직 플레이어
+> - Android Project
 
 -------------------------------------------------------
 
-> gif 가 보이지 않는 경우클릭하시면 새창으로 볼 수 있습니다.
+![](http://cfile2.uf.tistory.com/image/2715EE4F58C5F0972B9DB6)
+
+![](http://cfile10.uf.tistory.com/image/2170784F58C5F098135280)
+
+![](http://cfile21.uf.tistory.com/image/220D704F58C5F0982C4F89)
 
 ####**화면 gif**
 
-![](https://im3.ezgif.com/tmp/ezgif-3-5b7e7e25b6.gif)
+![](http://cfile4.uf.tistory.com/image/225EEC3D58C5496219C2A6)
 
 ####**youtube Link**
+
+> - 동영상을 통하여 시연 영상을 볼 수 있습니다.
+
 [![](http://img.youtube.com/vi/RTZIodXZsVw/0.jpg)](https://www.youtube.com/watch?v=RTZIodXZsVw&feature=youtu.be)
+
 
 ##**Technical Skills**
 > - MediaPlayer 객체를 이용한 음원 재생
