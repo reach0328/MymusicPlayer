@@ -10,7 +10,7 @@
 
 ![](https://media.giphy.com/media/xUPGcvRevppaKvmhGg/giphy.gif)
 
-![](https://media.giphy.com/media/xUPGchqf5SnPhoyInK/giphy.gif)
+![](https://im3.ezgif.com/tmp/ezgif-3-7dfbd718e7.gif)
 
 ![](https://media.giphy.com/media/xUPGchqf5SnPhoyInK/giphy.gif)
 
