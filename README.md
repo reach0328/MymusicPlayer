@@ -8,13 +8,7 @@
 
 ####**화면 gif**
 
-![](https://media.giphy.com/media/xUPGcvRevppaKvmhGg/giphy.gif)
-
-![](https://im3.ezgif.com/tmp/ezgif-3-7dfbd718e7.gif)
-
-![](https://media.giphy.com/media/xUPGchqf5SnPhoyInK/giphy.gif)
-
-![](https://media.giphy.com/media/l1KVayttJ70G7tDna/giphy.gif)
+![](https://im3.ezgif.com/tmp/ezgif-3-5b7e7e25b6.gif)
 
 ####**youtube Link**
 [![](http://img.youtube.com/vi/RTZIodXZsVw/0.jpg)](https://www.youtube.com/watch?v=RTZIodXZsVw&feature=youtu.be)
