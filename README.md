@@ -5,10 +5,15 @@
 -------------------------------------------------------
 
 > gif 가 보이지 않는 경우클릭하시면 새창으로 볼 수 있습니다.
+
 ####**화면 gif**
+
 ![](https://media.giphy.com/media/xUPGcvRevppaKvmhGg/giphy.gif)
+
 ![](https://media.giphy.com/media/xUPGchqf5SnPhoyInK/giphy.gif)
+
 ![](https://media.giphy.com/media/xUPGchqf5SnPhoyInK/giphy.gif)
+
 ![](https://media.giphy.com/media/l1KVayttJ70G7tDna/giphy.gif)
 
 ####**youtube Link**
